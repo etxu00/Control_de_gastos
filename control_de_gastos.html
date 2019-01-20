@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="es-419">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Control de gastos</title>
+  <meta name="description" content="Control de gastos, objetivos y más">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" href="//img.icons8.com/color/32/000000/check.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial' Sans-serif;
+      margin: 0;
+    }
+    form {
+      padding: 1rem;
+    }
+    label {
+      display: flex;
+      flex-direction: column-reverse;
+      margin-bottom: 1rem;
+    }
+
+    .off {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Control económico</h1>
+  <nav>
+    <ul>
+      <li><span>Adeudos</span></li>
+      <li><span>Ahorros</span></li>
+      <li><span>Bitácora de gastos</span></li>
+      <li><span>Objetivos</span></li>
+      <li><span>Tarjetas de crédito</span></li>
+    </ul>
+  </nav>
+  <section>
+    <form id="form_register">
+      <h2>Registro de egresos</h2>
+      <label>
+        <input class="" name="amount" id="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00">
+        <span>Monto</span>
+      </label>
+      <label>
+        <select class="" name="description" id="description">
+          <option value="0">Seleccione una opción</option>
+          <option value="1">Internet</option>
+          <option value="2">Renta</option>
+          <option value="-1">Otro</option>
+        </select>
+        <span>Descripción</span>
+      </label>
+      <label>
+        <input class="" name="name_new_description" id="name_new_description" type="text" autocomplete="off" data-ui="hidden">
+        <span>Nombre</span>
+      </label>
+      <label>
+        <input class="" name="new_description" id="new_description" type="checkbox" autocomplete="off" data-ui="hidden">
+        <span>Agregar a lista de opciones de: "Descripción"</span>
+      </label>
+      <label>
+        <select class="" name="ubication" id="ubication">
+          <option value="">Seleccione una opción</option>
+          <option value="0" data-amount="100">Internet</option>
+          <option value="2" data-amount="1200">Renta</option>
+          <option value="-1">Otro</option>
+        </select>
+        <span>Lugar</span>
+      </label>
+      <label>
+        <input class="" name="name_new_ubication" id="name_new_ubication" type="text" autocomplete="off" data-ui="hidden">
+        <span>Nombre</span>
+      </label>
+      <label>
+        <input class="" name="new_ubication" id="new_ubication" type="checkbox" autocomplete="off" data-ui="hidden">
+        <span>Agregar a lista de opciones de: "Lugar"</span>
+      </label>
+      <label>
+        <select class="" name="way_pay" id="way_pay">
+          <option value="">Seleccione una opción</option>
+          <option value="">Tarjeta de crédito: Aeromexico</option>
+          <option value="">Tarjeta de crédito: Efectivo</option>
+          <option value="">Tarjeta de crédito: Free</option>
+          <option value="">Tarjeta de crédito: Zero</option>
+          <option value="">Cuenta paypal: Aeromexico</option>
+          <option value="">Cuenta paypal: Efectivo</option>
+          <option value="">Cuenta paypal: Free</option>
+          <option value="-1">Otro</option>
+        </select>
+        <span>Forma de pago</span>
+      </label>
+      <label>
+        <input class="" name="date_purchase" id="date_purchase" type="date" autocomplete="off">
+        <span>Fecha de compra</span>
+      </label>
+      <button class="" type="submit">Aceptar</button>
+      <button class="" type="reset">Cancear</button>
+    </form>
+    <h2>Historial de egresos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Descripción</th>
+          <th>Lugar</th>
+          <th>Forma de pago</th>
+          <th>Fecha de compra</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <script></script>
+</body>
+</html>
