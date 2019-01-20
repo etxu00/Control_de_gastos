@@ -119,6 +119,140 @@
     </table>
   </section>
 
-  <script></script>
+  <script>
+    _descriptions = {
+                      description : [
+                                      {
+                                        id     : 1,
+                                        name   : 'renta',
+                                        amount : 2300.00
+                                      },
+                                      {
+                                        id     : 2,
+                                        name   : 'internet + teléfono',
+                                        amount : 429.00
+                                      },
+                                    ],
+                      create : function() {
+                        $html = '<option value="">Seleccione una opción</option>'
+                        
+                        for (key in this.description) {
+                          _value  = this.description[key].id
+                          _amount = ' data-amount="' + this.description[key].amount + '"'
+                          _label  = this.description[key].name
+
+                          $html += '<option value="' + _value + '"' + _amount + '>' + _label + '</option>'
+                        }
+
+                        $html += '<option value="-1">Otro</option>'
+
+                        $description.innerHTML = $html
+
+                        $description.addEventListener('change', function() {
+                          optionSelected = this.children[this.options.selectedIndex]
+
+                          if (optionSelected.getAttribute('data-amount') != null)
+                            $amount.value = parseFloat(optionSelected.dataset.amount)
+                        })
+                      },
+                    }
+
+
+    $formRegister = document.querySelector('#form_register')
+    $datePurchase = document.querySelector('#date_purchase')
+    $description  = document.querySelector('#description')
+    $amount       = document.querySelector('#amount')
+    
+    $$selects     = document.querySelectorAll('select')
+    $$resets      = document.querySelectorAll('[type="reset"]')
+    $$tags        = document.querySelectorAll('[data-ui]')
+
+    function changeSelect() {
+      val    = parseInt(this.value)
+      id     = this.id
+      
+      $check = document.querySelector('#new_' + id)
+      $name  = document.querySelector('#name_new_' + id)
+
+      if (val == -1) {
+        $check.parentElement.classList.remove('off')
+        $name.parentElement.classList.remove('off')
+
+        $name.focus()
+      } else {
+        $check.parentElement.classList.add('off')
+        $name.parentElement.classList.add('off')
+      }
+
+    }
+
+    function resetForms(event) {
+      isForm = this.parentElement.nodeName
+
+      if (isForm == 'FORM') {
+        $form = this.parentElement
+
+        for (key in $form.children) {
+          if (key != 'namedItem' && key != 'item' && key != 'length') {
+            $element = $form[key]
+
+            if ($element.getAttribute('data-ui') != null)
+              if ($element.parentElement.nodeName == 'LABEL')
+                $element.parentElement.classList.add('off')
+          }
+        }
+      }
+    }
+
+    function addRegister(event) {
+      event.preventDefault()
+
+      dataTmp = new FormData(this)
+      data = {}
+
+      dataTmp.append('creation_date', new Date())
+
+      dataTmp.forEach(function(value, key) {
+        data[key] = value
+      })
+
+      console.log(data)
+      this.reset()
+    }
+
+    function today() {
+      date  = new Date()
+
+      _day   = date.getDate()
+      _month = date.getMonth() + 1
+      _year  = date.getFullYear()
+
+      if (_month < 10) _month = "0" + _month
+      if (_day < 10) _day = "0" + _day
+
+      _today = _year + "-" + _month + "-" + _day
+      
+      return _today
+    }
+
+    $datePurchase.value = today()
+
+    $formRegister.onsubmit = addRegister
+    
+    $$selects.forEach(function(select) {
+      select.onchange = changeSelect
+    })
+    
+    $$resets.forEach(function(element) {
+      element.onclick = resetForms
+    })
+    
+    $$tags.forEach(function(element) {
+      isLabel = element.parentElement
+
+      if (isLabel.nodeName == 'LABEL')
+        isLabel.classList.add('off')
+    })
+  </script>
 </body>
 </html>
