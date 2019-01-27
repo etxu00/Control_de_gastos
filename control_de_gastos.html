@@ -43,16 +43,42 @@
     </ul>
   </nav>
   <section>
+    <form id="form_place">
+      <input name="id" type="hidden">
+      <h2>Registro de lugares</h2>
+      <label>
+        <input name="name" id="name" type="text" autocomplete="off" placeholder="Nombre del lugar (razón fiscal)" required>
+        <span>Nombre</span>
+      </label>
+      <label>
+        <input name="image" id="image" type="url" placeholder="Enlace web de la imagen">
+        <span>Enlace de la imagen</span>
+      </label>
+      <button type="submit">Aceptar</button>
+      <button type="reset">Cancear</button>
+      <h2>Lugares</h2>
+      <table id="tablePlaces">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Imagen</th>
+          </tr>
+        </thead>
+        <tbody id="places"></tbody>
+      </table>
+    </form>
+  </section>
+  <section>
     <form id="form_expenses">
-      <input name="id" id="id" type="hidden">
+      <input name="id" type="hidden">
       <h2>Registro de egresos</h2>
       <label>
-        <input name="amount" id="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00">
+        <input name="amount" id="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00" required>
         <span>Monto</span>
       </label>
       <label>
-        <select name="description" id="description">
-          <option value="0">Seleccione una opción</option>
+        <select name="description" id="description" required>
+          <option value="">Seleccione una opción</option>
           <option value="1">Internet</option>
           <option value="2">Renta</option>
           <option value="-1">Otro</option>
@@ -121,54 +147,69 @@
   </section>
 
   <script>
-    developer = true
+    developer = false
     itemEdit  = null
+    editItem  = false
 
     _expenses = {
                   expenses  : [],
                   showItems : function() {
                                 $tr = ''
 
-                                if (typeof(this.expenses) == 'string') {
-                                  tmpExpenses   = []
-                                  this.expenses = (new Function("return [" + this.expenses.slice(0, -1).substring(1) + "]")())
-
-                                  for (key in this.expenses) {
-                                    tmpExpenses.push(this.expenses[key])
-                                  }
-
-                                  this.expenses = tmpExpenses
-                                }
+                                if (typeof(this.expenses) == 'string')
+                                  this.expenses = stringToArrayObject(this.expenses)
                                 
                                 for (key in this.expenses) {
                                   _id           = this.expenses[key].id
-                                  _nombre       = this.expenses[key].name_new_description
+                                  _name         = this.expenses[key].description
                                   _ubication    = this.expenses[key].ubication
                                   _wayPay       = this.expenses[key].way_pay
                                   _datePurchase = this.expenses[key].date_purchase
                                   _amount       = this.expenses[key].amount
                                   
-                                  $tr += '<tr>'+
-                                            '<td>' + _nombre + '</td>'+
+                                  $tr += '<tr data-id="' + _id + '" title="id: ' + _id + '. index: ' + key + '">'+
+                                            '<td>' + _name + '</td>'+
                                             '<td>' + _ubication + '</td>'+
                                             '<td>' + _wayPay + '</td>'+
                                             '<td>' + _datePurchase + '</td>'+
-                                            '<td>' + _amount + '</td>'+
+                                            '<td>$ ' + parseFloat(_amount).toFixed(2) + '<button class="btnEdit _btnEdit" type="button">Editar</button></td>'+
                                           '</tr>'
                                 }
 
                                 $expenses.innerHTML = ''
                                 $expenses.innerHTML = $tr
+
+                                for (key in $expenses.children) {
+                                  if (key != 'length' && key != 'item' && key != 'namedItem') {
+                                    lastNumItem = $expenses.children[key].children.length - 1
+                                    $lastTd     = $expenses.children[key].children[lastNumItem]
+
+                                    $expenses.children[key].addEventListener('click', function() {
+                                      id = this.dataset.id
+
+                                      loadItem(_expenses.expenses, $formExpenses, id)
+                                      editItem = false
+                                    })
+
+                                    for (key in $lastTd.children) {
+                                      if ($lastTd.children[0].classList.contains('_btnEdit')) {
+                                        $lastTd.children[0].addEventListener('click', function() {
+                                          editItem = true
+                                        })
+                                      }
+                                    }
+                                  }
+                                }
                               },
                   create    : function() {
                                 $html = '<option value="">Seleccione una opción</option>'
                                 
                                 for (key in this.description) {
-                                  _value  = this.description[key].id
-                                  _amount = ' data-amount="' + this.description[key].amount + '"'
-                                  _label  = this.description[key].name
+                                  _value    = this.description[key].id
+                                  _dataAttr = ' data-amount="' + this.description[key].amount + '"'
+                                  _label    = this.description[key].name
        
-                                  $html += '<option value="' + _value + '"' + _amount + '>' + _label + '</option>'
+                                  $html += '<option value="' + _value + '"' + _dataAttr + '>' + _label + '</option>'
                                 }
        
                                 $html += '<option value="-1">Otro</option>'
@@ -184,15 +225,141 @@
                               },
                 }
 
-    $formExpenses = document.querySelector('#form_expenses')
+    _places   = {
+                  places      : [],
+                  top         : function(idPlace, numTop) {
+                                  return 0
+                                },
+                  showItems   : function() {
+                                $tr = ''
+
+                                if (typeof(this.places) == 'string')
+                                  this.places = stringToArrayObject(this.places)
+                                
+                                for (key in this.places) {
+                                  _id    = this.places[key].id
+                                  _name  = this.places[key].name
+                                  _image = this.places[key].image
+
+                                  _image != '' ? _image = "Si" : _image = "No"
+                                  
+                                  $tr += '<tr data-id="' + _id + '" title="id: ' + _id + '. index: ' + key + '">'+
+                                            '<td>' + _name + '</td>'+
+                                            '<td>' + _image + '<button class="btnEdit _btnEdit" type="button">Editar</button></td>'+
+                                          '</tr>'
+                                }
+
+                                $places.innerHTML = ''
+                                $places.innerHTML = $tr
+
+                                for (key in $places.children) {
+                                  if (key != 'length' && key != 'item' && key != 'namedItem') {
+                                    lastNumItem = $places.children[key].children.length - 1
+                                    $lastTd     = $places.children[key].children[lastNumItem]
+
+                                    $places.children[key].addEventListener('click', function() {
+                                      id = this.dataset.id
+
+                                      loadItem(_places.places, $formPlace, id)
+                                      editItem = false
+                                    })
+
+                                    for (key in $lastTd.children) {
+                                      if ($lastTd.children[0].classList.contains('_btnEdit')) {
+                                        $lastTd.children[0].addEventListener('click', function() {
+                                          editItem = true
+                                        })
+                                      }
+                                    }
+                                  }
+                                }
+
+                                this.create()
+                                },
+                  create      : function() {
+                                $html = '<option value="">Seleccione una opción</option>'
+                                
+                                for (key in this.places) {
+                                  _value    = this.places[key].id
+                                  _dataAttr = this.places[key].iamge
+                                  _label    = this.places[key].name
+
+                                  _dataAttr == undefined ? _dataAttr = '' : _dataAttr = ' data-image-src="' + _dataAttr + '"'
+                  
+                                  $html += '<option value="' + _value + '"' + _dataAttr + '>' + _label + '</option>'
+                                }
+                  
+                                $html += '<option value="-1">Otro</option>'
+                  
+                                $ubication.innerHTML = $html
+                                },
+                  addItem     : function(data) {
+                                  if (!data.id) {
+                                    id     = null
+                                    places = _places.places
+                                    
+                                    _numItems = places.length
+
+                                    if (_numItems > 0)
+                                      newId = places[places.length -1].id + 1
+
+                                    _numItems >= 1 ? id = newId : id = 1
+
+                                    data.id = id
+
+                                    places.push(data)
+                                  } else {
+                                    data.id            = parseInt(data.id)
+                                    data.creation_date = _places.places[itemEdit].creation_date
+
+                                    _places.places[itemEdit] = data
+                                  }
+
+                                  _places.showItems()
+                                  localStorage.setItem('places', JSON.stringify(_places.places))
+                                },
+                  isThereItem : function(name) {
+                                  result = false
+
+                                  if (_places.places.length == 0)
+                                    return false
+
+                                  _places.places.forEach(function(item, index) {
+                                    if (name == _places.places[index].name)
+                                      result = true
+
+                                    if (result)
+                                      return true
+                                  })
+
+                                  return result
+                                }
+                }
+
+    $amount       = document.querySelector('#amount')
     $datePurchase = document.querySelector('#date_purchase')
     $description  = document.querySelector('#description')
-    $amount       = document.querySelector('#amount')
     $expenses     = document.querySelector('#expenses')
+    $formExpenses = document.querySelector('#form_expenses')
+    $formPlace    = document.querySelector('#form_place')
+    $places       = document.querySelector('#places')
+    $ubication    = document.querySelector('#ubication')
     
-    $$selects     = document.querySelectorAll('select')
     $$resets      = document.querySelectorAll('[type="reset"]')
+    $$selects     = document.querySelectorAll('select')
     $$tags        = document.querySelectorAll('[data-ui]')
+
+    function stringToArrayObject(string) {
+      tmpArray   = []
+      
+      string = (new Function("return [" + string.slice(0, -1).substring(1) + "]")())
+
+      for (key in string) {
+        tmpArray.push(this.expenses[key])
+      }
+
+      return tmpArray
+    }
 
     function changeSelect() {
       val    = parseInt(this.value)
@@ -218,11 +385,13 @@
       form.id == undefined ? isForm = this.parentElement.nodeName : isForm = this.nodeName
 
       if (isForm == 'FORM') {
-        $form = this.parentElement
+        $inputs = this.parentElement
 
-        for (key in $form.children) {
-          if (key != 'namedItem' && key != 'item' && key != 'length' && $form[key] != undefined) {
-            $element = $form[key]
+        for (key in $inputs.children) {
+          if (key != 'namedItem' && key != 'item' && key != 'length' && $inputs[key] != undefined) {
+            $element = $inputs[key]
+
+            $element.disabled = false
 
             if ($element.getAttribute('data-ui') != null)
               if ($element.parentElement.nodeName == 'LABEL')
@@ -231,7 +400,9 @@
         }
       }
 
-      $datePurchase.value = today()
+      setTimeout(function() {
+        $datePurchase.value = today()
+      }, 10)
     }
 
     function addRegister(event) {
@@ -248,39 +419,114 @@
       })
 
       if (id == 'form_expenses') {
-        if (data.amount == '') {
-          _selector = '#' + id + ' input:not([type="hidden"])'
+        if (data.new_ubication == 'on') {
+          if (!_places.isThereItem(data.name_new_ubication)) {
+            dataUbication = {
+                              creation_date : new Date(),
+                              id            : '',
+                              image         : '',
+                              name          : data.name_new_ubication,
+                            }
+
+            _places.addItem(dataUbication)
+          } else alert("La ubicación ya existe.")
+        }
+
+        if (!data.id) {
+          id        = null
+          expenses  = _expenses.expenses
           
-          alert("El monto es obligatorio")
-          document.querySelector(_selector).focus()
-          return
+          _numItems = expenses.length
+
+          if (_numItems > 0)
+            newId = expenses[expenses.length -1].id + 1
+
+          _numItems >= 1 ? id = newId : id = 1
+
+          data.id = id
+
+          expenses.push(data)
         } else {
-          if (!data.id) {
-            id        = null
-            expenses  = _expenses.expenses
-            
-            _numItems = expenses.length
+          data.id            = parseInt(data.id)
+          data.creation_date = _expenses.expenses[itemEdit].creation_date
 
-            if (_numItems > 0)
-              newId = expenses[expenses.length -1].id + 1
+          _expenses.expenses[itemEdit] = data
+        }
 
-            _numItems >= 1 ? id = newId : id = 1
+        _expenses.showItems()
+        localStorage.setItem('expenses', JSON.stringify(_expenses.expenses))
+      }
 
-            data.id = id
+      if (id == 'form_place')
+        if (!_places.isThereItem(data.name_new_ubication))
+          _places.addItem(data)
 
-            expenses.push(data)
-          } else {
-            data.id       = parseInt(data.id)
-            obj[itemEdit] = data
-          }
+      resetForms(this)
+      this.reset()
+    }
+
+    function loadItem(arrayObjects, $form, id) {
+      item = null
+      id   = parseInt(id)
+
+      console.log(arrayObjects)
+
+      for (key in arrayObjects) {
+        if (arrayObjects[key].id === id) {
+          item     = arrayObjects[key]
+          itemEdit = parseInt(key)
+
+          break
         }
       }
 
-      localStorage.setItem('expenses', JSON.stringify(expenses))
+      for (key in $form.querySelectorAll('input[type="checkbox"]')) {
+        $form.querySelectorAll('input[type="checkbox"]')[key].disabled = false
+        $form.querySelectorAll('input')[key].disabled = false
+      }
 
-      console.log(data)
-      resetForms(this)
-      this.reset()
+      for (key of Object.keys(item)) {
+        if (document.querySelector('#' + key) != null) {
+          $item       = document.querySelector('#' + key)
+          $item.value = item[key]
+
+          if ($item.type == 'checkbox' || $item.type == 'radio')
+            if (item[key] == 'on')
+              $item.checked = true
+
+          if ($item.nodeName == 'SELECT')
+            $item.onchange()
+
+          !editItem ? $item.disabled = true : $item.disabled = false
+        }
+
+        $$buttons = $form.querySelectorAll('button[type="submit"]')
+
+        for (key in $$buttons) {
+          !editItem ? $$buttons[key].disabled = true : $$buttons[key].disabled = false
+        }
+
+      }
+
+
+      /*$.each(item, function(index, val) {
+        $item = $('#' + index)
+        
+        $item.val(val)
+
+        if (!editObjetive)
+          $item.prop('disabled', true)
+
+        if (index == 'image')
+          $imageThumb.attr('src', val)
+
+        // $('yourimageselector').attr('src', 'newsrc').load(function() {
+        //   this.width;   // Note: $(this).width() will not work for in memory images
+        // })
+
+        if (val == 'on')
+          $('#' + index).prop('checked', true)
+      })*/
     }
 
     function today() {
@@ -314,18 +560,31 @@
     }
 
     function start() {
+      if (localStorage.getItem('places')) {
+        _places.places = localStorage.getItem('places')
+
+        _places.places = showItems(_places.places)
+
+        _places.showItems()
+      } else
+        if (developer)
+          console.info("No hay lugares que mostrar")
+        
       if (localStorage.getItem('expenses')) {
         _expenses.expenses = localStorage.getItem('expenses')
 
         _expenses.expenses = showItems(_expenses.expenses)
+
+        _expenses.showItems()
       } else
         if (developer)
-          console.info("No hay información egresos que mostrar")
+          console.info("No hay egresos que mostrar")
     }
 
-    $datePurchase.value = today()
-
+    $datePurchase.value    = today()
+    
     $formExpenses.onsubmit = addRegister
+    $formPlace.onsubmit    = addRegister
     
     $$selects.forEach(function(select) {
       select.onchange = changeSelect
