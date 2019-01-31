@@ -33,6 +33,7 @@
 </head>
 <body>
   <h1>Control económico</h1>
+  
   <nav>
     <ul>
       <li><span>Adeudos</span></li>
@@ -42,7 +43,49 @@
       <li><span>Tarjetas de crédito</span></li>
     </ul>
   </nav>
+
   <section>
+    <form id="form_services">
+      <input name="id" type="hidden">
+      <h2>Registro de egresos recurrentes</h2>
+      <label>
+        <input name="name" type="text" autocomplete="off" placeholder="Ejemplo: Internet, Renta, Gas, Luz, etc." required>
+        <span>Nombre</span>
+      </label>
+      <label>
+        <input name="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00" required>
+        <span>Monto</span>
+      </label>
+      <label>
+        <select name="payment_period">
+          <option value="">Seleccione una opción</option>
+          <option value="0">Mensual</option>
+          <option value="1">Anual</option>
+        </select>
+        <span>Periodo</span>
+      </label>
+      <label>
+        <input name="day_to_pay" type="date" autocomplete="off">
+        <span>Día de cobro</span>
+      </label>
+      <button type="submit">Aceptar</button>
+      <button type="reset">Cancear</button>
+      <h2>Egresos recurrentes</h2>
+      <table id="table_services">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Monto</th>
+            <th>Periodo</th>
+            <th>Día de cobro</th>
+          </tr>
+        </thead>
+        <tbody id="services"></tbody>
+      </table>
+    </form>
+  </section>
+
+  <section hidden>
     <form id="form_place">
       <input name="id" type="hidden">
       <h2>Registro de lugares</h2>
@@ -57,7 +100,7 @@
       <button type="submit">Aceptar</button>
       <button type="reset">Cancear</button>
       <h2>Lugares</h2>
-      <table id="tablePlaces">
+      <table id="table_Places">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -68,7 +111,8 @@
       </table>
     </form>
   </section>
-  <section>
+
+  <section hidden>
     <form id="form_expenses">
       <input name="id" type="hidden">
       <h2>Registro de egresos</h2>
@@ -150,6 +194,125 @@
     developer = false
     itemEdit  = null
     editItem  = false
+
+    _services = {
+                  services      : [],
+                  top         : function(idPlace, numTop) {
+                                  return 0
+                                },
+                  showItems   : function() {
+                                  $tr = ''
+
+                                  if (typeof(this.services) == 'string')
+                                    this.services = stringToArrayObject(this.services)
+                                  
+                                  for (key in this.services) {
+                                    _id            = this.services[key].id
+                                    _name          = this.services[key].name
+                                    _amount        = this.services[key].amount
+                                    _paymentPeriod = this.services[key].payment_period
+                                    _dayToPay      = this.services[key].day_to_pay
+
+                                    // Formato nuevo
+                                    _amount        = '$ ' + parseFloat(_amount).toFixed(2)
+                                    _dayToPay      = convertDate(_dayToPay)
+
+                                    _paymentPeriod == 0 ? _paymentPeriod = "Mensual" : _paymentPeriod = "Anual"
+
+                                    $tr += '<tr data-id="' + _id + '" title="id: ' + _id + '. index: ' + key + '">'+
+                                              '<td>' + _name + '</td>'+
+                                              '<td>' + _amount + '</td>'+
+                                              '<td>' + _paymentPeriod + '</td>'+
+                                              '<td>' + _dayToPay + '<button class="btnEdit _btnEdit" type="button">Editar</button></td>'+
+                                            '</tr>'
+                                  }
+
+                                  $services.innerHTML = ''
+                                  $services.innerHTML = $tr
+
+                                  for (key in $services.children) {
+                                    if (key != 'length' && key != 'item' && key != 'namedItem') {
+                                      lastNumItem = $services.children[key].children.length - 1
+                                      $lastTd     = $services.children[key].children[lastNumItem]
+
+                                      $services.children[key].addEventListener('click', function() {
+                                        id = this.dataset.id
+
+                                        loadItem(_services.services, $formServices, id)
+                                        editItem = false
+                                      })
+
+                                      for (key in $lastTd.children) {
+                                        if ($lastTd.children[0].classList.contains('_btnEdit')) {
+                                          $lastTd.children[0].addEventListener('click', function() {
+                                            editItem = true
+                                          })
+                                        }
+                                      }
+                                    }
+                                  }
+
+                                  this.create()
+                                },
+                  create      : function() {
+                                  $html = '<option value="">Seleccione una opción</option>'
+                                  
+                                  for (key in this.services) {
+                                    _value    = this.services[key].id
+                                    _dataAttr = this.services[key].iamge
+                                    _label    = this.services[key].name
+
+                                    _dataAttr == undefined ? _dataAttr = '' : _dataAttr = ' data-image-src="' + _dataAttr + '"'
+                    
+                                    $html += '<option value="' + _value + '"' + _dataAttr + '>' + _label + '</option>'
+                                  }
+                    
+                                  $html += '<option value="-1">Otro</option>'
+                    
+                                  $ubication.innerHTML = $html
+                                },
+                  addItem     : function(data) {
+                                  if (!data.id) {
+                                    id     = null
+                                    services = _services.services
+                                    
+                                    _numItems = services.length
+
+                                    if (_numItems > 0)
+                                      newId = services[services.length -1].id + 1
+
+                                    _numItems >= 1 ? id = newId : id = 1
+
+                                    data.id = id
+
+                                    services.push(data)
+                                  } else {
+                                    data.id            = parseInt(data.id)
+                                    data.creation_date = _services.services[itemEdit].creation_date
+
+                                    _services.services[itemEdit] = data
+                                  }
+
+                                  _services.showItems()
+                                  localStorage.setItem('services', JSON.stringify(_services.services))
+                                },
+                  isThereItem : function(name) {
+                                  result = false
+
+                                  if (_services.services.length == 0)
+                                    return false
+
+                                  _services.services.forEach(function(item, index) {
+                                    if (name == _services.services[index].name)
+                                      result = true
+
+                                    if (result)
+                                      return true
+                                  })
+
+                                  return result
+                                }
+                }
 
     _expenses = {
                   expenses  : [],
@@ -340,14 +503,30 @@
     $datePurchase = document.querySelector('#date_purchase')
     $description  = document.querySelector('#description')
     $expenses     = document.querySelector('#expenses')
+    $services     = document.querySelector('#services')
     $formExpenses = document.querySelector('#form_expenses')
     $formPlace    = document.querySelector('#form_place')
+    $formServices = document.querySelector('#form_services')
     $places       = document.querySelector('#places')
     $ubication    = document.querySelector('#ubication')
     
     $$resets      = document.querySelectorAll('[type="reset"]')
     $$selects     = document.querySelectorAll('select')
     $$tags        = document.querySelectorAll('[data-ui]')
+
+    function convertDate(yyyymmdd) {
+      function pad(tmp) {
+        return (tmp < 10) ? '0' + tmp : tmp
+      }
+      
+      newFormat = new Date(yyyymmdd)
+      
+      return [
+               pad(newFormat.getDate() + 1),
+               pad(newFormat.getMonth() + 1),
+               newFormat.getFullYear()
+             ].join('/')
+    }
 
     function stringToArrayObject(string) {
       tmpArray   = []
@@ -461,6 +640,10 @@
         if (!_places.isThereItem(data.name_new_ubication))
           _places.addItem(data)
 
+      if (id == 'form_services')
+        if (!_services.isThereItem(data.name))
+          _services.addItem(data)
+
       resetForms(this)
       this.reset()
     }
@@ -560,6 +743,16 @@
     }
 
     function start() {
+      if (localStorage.getItem('services')) {
+        _services.services = localStorage.getItem('services')
+
+        _services.services = showItems(_services.services)
+
+        _services.showItems()
+      } else
+        if (developer)
+          console.info("No hay servicios que mostrar")
+
       if (localStorage.getItem('places')) {
         _places.places = localStorage.getItem('places')
 
@@ -585,6 +778,7 @@
     
     $formExpenses.onsubmit = addRegister
     $formPlace.onsubmit    = addRegister
+    $formServices.onsubmit = addRegister
     
     $$selects.forEach(function(select) {
       select.onchange = changeSelect
