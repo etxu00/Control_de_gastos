@@ -65,7 +65,7 @@
         <input name="image" type="file">
         <span>Imagen</span>
       </label>
-      <label id="ct_src_image">
+      <label id="ct_src_image" hidden>
         <input name="src_image" type="url" autocomplete="off" placeholder="Ejemplo: https://image.png" >
         <span>Imagen</span>
       </label>
@@ -790,16 +790,13 @@
       _typeSelector = selector.substr(0, 1)
 
       if (_typeSelector == '#' || _typeSelector == '.') {
-        if (_typeSelector == '#') {
-          $element = document.querySelector(selector)
-
-        } else {
+        if (_typeSelector == '.') {
           $$elements = document.querySelectorAll(selector)
 
           $$elements.forEach(function($element) {
             $element.hidden ? $element.hidden = false : $element.hidden = true
           })
-        }
+        } else $element = document.querySelector(selector)
       } else {
         console.error("El selector " + selector + " no es soportado. Solo de admite id's (#) o clases (.)")
 
@@ -808,15 +805,28 @@
     }
 
     function toggleItemOnOff() {
-      selectors = this.dataset.roleToggleOnOff
+      selectors   = this.dataset.roleToggleOnOff
+      toogleIndex = null
 
-      selectors.split(',').forEach(function(selectorsValue){
+      selectors.split(',').forEach(function(selectorsValue, index){
+        selector      = selectorsValue
         _typeSelector = selectorsValue.substr(0, 1)
         
         if (_typeSelector == '#' || _typeSelector == '.') {
-          
+            if (_typeSelector == '.') {
+              $$elements = document.querySelectorAll(selector)
+
+              $$elements.forEach(function($element) {
+                $element.hidden ? $element.hidden = false : $element.hidden = true
+              })
+            } else {
+              $element    = document.querySelector(selector)
+              toggleIndex = $element.hidden
+
+              toggleIndex ? $element.hidden = false : $element.hidden = true
+            }
         } else {
-          console.error("El selector " + selector + " no es soportado. Solo de admite id's (#) o clases (.)")
+          console.error("El selector '" + selector + "' no es soportado. Solo de admite id's (#) o clases (.)")
           return true
         }
       })
