@@ -37,21 +37,26 @@
   
   <nav>
     <ul>
-      <li><span>Adeudos</span></li>
-      <li><span>Ahorros</span></li>
-      <li><span>Bitácora de gastos</span></li>
-      <li><span>Objetivos</span></li>
-      <li><span>Tarjetas de crédito</span></li>
+      <li><a href="">Adeudos</a></li>
+      <li><a href="">Ahorros</a></li>
+      <li><a href="">Tarjetas de crédito</a></li>
+      <li><a href="#section_expenses">Bitácora de gastos</a></li>
+      <li><a href="#section_objectives">Objetivos</a></li>
+      <li><a href="#section_place">Lugares</a></li>
     </ul>
   </nav>
 
-  <section>
+  <section id="section_objectives">
     <form id="form_objectives">
       <input name="id" type="hidden">
-      <h2>Registro de egresos recurrentes</h2>
+      <h2>Registro de objetivos</h2>
       <label>
-        <input name="name" type="text" autocomplete="off" placeholder="Ejemplo: Internet, Renta, Gas, Luz, etc." required>
+        <input name="name" type="text" autocomplete="off" placeholder="Nombre del objetivo" required>
         <span>Nombre</span>
+      </label>
+      <label>
+        <input name="alias" type="text" autocomplete="off" placeholder="Nombre corto">
+        <span>Alias</span>
       </label>
       <label>
         <input name="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00" required>
@@ -62,17 +67,19 @@
         <span>De enlace</span>
       </label>
       <label id="ct_file_image_objetive">
-        <input name="image" type="file">
-        <span>Imagen</span>
+        <input id="upload_image" name="image" type="file">
+        <span id="name_thumbnail">Seleccionar archivo</span>
+        <img id="thumbnail" width="100" height="auto" src="https://img.icons8.com/material-outlined/100/000000/picture.png">
       </label>
       <label id="ct_src_image" hidden>
         <input name="src_image" type="url" autocomplete="off" placeholder="Ejemplo: https://image.png" >
         <span>Imagen</span>
+        <img id="thumbnail_src" width="100" height="auto" src="https://img.icons8.com/material-outlined/100/000000/picture.png">
       </label>
       <button type="submit">Aceptar</button>
       <button type="reset">Cancear</button>
-      <h2>Egresos recurrentes</h2>
-      <table id="table_services">
+      <h2>Objetivos</h2>
+      <table id="table_objectives">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -81,12 +88,12 @@
             <th>Día de cobro</th>
           </tr>
         </thead>
-        <tbody id="services"></tbody>
+        <tbody id="objectives"></tbody>
       </table>
     </form>
   </section>
 
-  <section>
+  <section id="section_services">
     <form id="form_services">
       <input name="id" type="hidden">
       <h2>Registro de egresos recurrentes</h2>
@@ -127,7 +134,7 @@
     </form>
   </section>
 
-  <section hidden>
+  <section id="section_place">
     <form id="form_place">
       <input name="id" type="hidden">
       <h2>Registro de lugares</h2>
@@ -154,7 +161,7 @@
     </form>
   </section>
 
-  <section hidden>
+  <section id="section_expenses">
     <form id="form_expenses">
       <input name="id" type="hidden">
       <h2>Registro de egresos</h2>
@@ -236,6 +243,122 @@
     developer = false
     itemEdit  = null
     editItem  = false
+
+    _objectives = {
+                    objectives  : [],
+                    showItems   : function() {
+                                    $tr = ''
+
+                                    if (typeof(this.objectives) == 'string')
+                                      this.objectives = stringToArrayObject(this.objectives)
+                                    
+                                    for (key in this.objectives) {
+                                      _id            = this.objectives[key].id
+                                      _name          = this.objectives[key].name
+                                      _amount        = this.objectives[key].amount
+                                      _paymentPeriod = this.objectives[key].payment_period
+                                      _dayToPay      = this.objectives[key].day_to_pay
+
+                                      // Formato nuevo
+                                      _amount        = '$ ' + parseFloat(_amount).toFixed(2)
+                                      _dayToPay      = convertDate(_dayToPay)
+
+                                      _paymentPeriod == 0 ? _paymentPeriod = "Mensual" : _paymentPeriod = "Anual"
+
+                                      $tr += '<tr data-id="' + _id + '" title="id: ' + _id + '. index: ' + key + '">'+
+                                                '<td>' + _name + '</td>'+
+                                                '<td>' + _amount + '</td>'+
+                                                '<td>' + _paymentPeriod + '</td>'+
+                                                '<td>' + _dayToPay + '<button class="btnEdit _btnEdit" type="button">Editar</button></td>'+
+                                              '</tr>'
+                                    }
+
+                                    $objectives.innerHTML = ''
+                                    $objectives.innerHTML = $tr
+
+                                    for (key in $objectives.children) {
+                                      if (key != 'length' && key != 'item' && key != 'namedItem') {
+                                        lastNumItem = $objectives.children[key].children.length - 1
+                                        $lastTd     = $objectives.children[key].children[lastNumItem]
+
+                                        $objectives.children[key].addEventListener('click', function() {
+                                          id = this.dataset.id
+
+                                          loadItem(_objectives.objectives, $formobjectives, id)
+                                          editItem = false
+                                        })
+
+                                        for (key in $lastTd.children) {
+                                          if ($lastTd.children[0].classList.contains('_btnEdit')) {
+                                            $lastTd.children[0].addEventListener('click', function() {
+                                              editItem = true
+                                            })
+                                          }
+                                        }
+                                      }
+                                    }
+
+                                    this.create()
+                                  },
+                    create      : function() {
+                                    $html = '<option value="">Seleccione una opción</option>'
+                                    
+                                    for (key in this.objectives) {
+                                      _value    = this.objectives[key].id
+                                      _dataAttr = this.objectives[key].iamge
+                                      _label    = this.objectives[key].name
+
+                                      _dataAttr == undefined ? _dataAttr = '' : _dataAttr = ' data-image-src="' + _dataAttr + '"'
+                      
+                                      $html += '<option value="' + _value + '"' + _dataAttr + '>' + _label + '</option>'
+                                    }
+                      
+                                    $html += '<option value="-1">Otro</option>'
+                      
+                                    $ubication.innerHTML = $html
+                                  },
+                    addItem     : function(data) {
+                                    if (!data.id) {
+                                      id     = null
+                                      objectives = _objectives.objectives
+                                      
+                                      _numItems = objectives.length
+
+                                      if (_numItems > 0)
+                                        newId = objectives[objectives.length -1].id + 1
+
+                                      _numItems >= 1 ? id = newId : id = 1
+
+                                      data.id = id
+
+                                      objectives.push(data)
+                                    } else {
+                                      data.id            = parseInt(data.id)
+                                      data.creation_date = _objectives.objectives[itemEdit].creation_date
+
+                                      _objectives.objectives[itemEdit] = data
+                                    }
+
+                                    _objectives.showItems()
+                                    localStorage.setItem('objectives', JSON.stringify(_objectives.objectives))
+                                  },
+                    isThereItem : function(name) {
+                                    result = false
+
+                                    if (_objectives.objectives.length == 0)
+                                      return false
+
+                                    _objectives.objectives.forEach(function(item, index) {
+                                      if (name == _objectives.objectives[index].name)
+                                        result = true
+
+                                      if (result)
+                                        return true
+                                    })
+
+                                    return result
+                                  }
+                  }
 
     _services = {
                   services      : [],
@@ -541,20 +664,76 @@
                                 }
                 }
 
-    $amount       = document.querySelector('#amount')
-    $datePurchase = document.querySelector('#date_purchase')
-    $description  = document.querySelector('#description')
-    $expenses     = document.querySelector('#expenses')
-    $services     = document.querySelector('#services')
-    $formExpenses = document.querySelector('#form_expenses')
-    $formPlace    = document.querySelector('#form_place')
-    $formServices = document.querySelector('#form_services')
-    $places       = document.querySelector('#places')
-    $ubication    = document.querySelector('#ubication')
+    $amount         = document.querySelector('#amount')
+    $datePurchase   = document.querySelector('#date_purchase')
+    $description    = document.querySelector('#description')
+    $expenses       = document.querySelector('#expenses')
+    $formExpenses   = document.querySelector('#form_expenses')
+    $formObjectives = document.querySelector('#form_objectives')
+    $formPlace      = document.querySelector('#form_place')
+    $formServices   = document.querySelector('#form_services')
+    $nameThumbnail  = document.querySelector('#name_thumbnail')
+    $objectives     = document.querySelector('#objectives')
+    $places         = document.querySelector('#places')
+    $services       = document.querySelector('#services')
+    $thumbnail      = document.querySelector('#thumbnail')
+    $ubication      = document.querySelector('#ubication')
+    $uploadImage    = document.querySelector('#upload_image')
     
-    $$resets      = document.querySelectorAll('[type="reset"]')
-    $$selects     = document.querySelectorAll('select')
-    $$tags        = document.querySelectorAll('[data-ui]')
+    $$resets        = document.querySelectorAll('[type="reset"]')
+    $$selects       = document.querySelectorAll('select')
+    $$tags          = document.querySelectorAll('[data-ui]')
+
+    function loadImage(event) {
+      // FileList object
+      // Obtenemos la imagen del campo "file"
+      files = event.target.files
+      
+      for (var index = 0, f; f = files[index]; index++) {
+        //Solo admitimos imágenes.
+        if (!f.type.match('image.*'))
+          continue
+        
+        reader = new FileReader()
+        
+        reader.onload = (function(theFile) {
+          return function(e) {
+            // Creamos la imagen.
+            tmpSrc                   = e.target.result
+            
+            $nameThumbnail.innerHTML = 'Cargando...'
+            $thumbnail.src           = tmpSrc
+
+            dataTmp = new FormData($formObjectives)
+            data    = {}
+
+            dataTmp.forEach(function(value, key) {
+              data[key] = value
+            })
+
+            _size = " " + (((data.image.size / 1024) / 1024) * 1024).toFixed(2) + " KB"
+            
+            $thumbnail.title         = decodeURI(theFile.name) + _size
+            $nameThumbnail.innerHTML = decodeURI(theFile.name) + _size
+
+            // tiempo de espera para analizar las dimenciones del renderizado
+            setTimeout(function() {
+              x = $thumbnail.width
+              y = $thumbnail.height
+              if (x > y) {
+                $thumbnail.classList.remove('y')
+                $thumbnail.classList.add('x')
+              } else {
+                $thumbnail.classList.remove('x')
+                $thumbnail.classList.add('y')
+              }
+            }, 300)
+
+          }
+        })(f)
+        reader.readAsDataURL(f)
+      }/*for*/
+    }/*loadImage*/
 
     function convertDate(yyyymmdd) {
       function pad(tmp) {
@@ -678,6 +857,19 @@
         localStorage.setItem('expenses', JSON.stringify(_expenses.expenses))
       }
 
+      if (id == 'form_objectives') {
+        if (!_objectives.isThereItem(data.name)) {
+          data.src_image  = $thumbnail.src
+          data.image_name = data.image.name
+          data.image_size = data.image.size
+          data.image_type = data.image.type
+
+          delete data.image
+
+          _objectives.addItem(data)
+        }
+      }
+
       if (id == 'form_place')
         if (!_places.isThereItem(data.name_new_ubication))
           _places.addItem(data)
@@ -732,26 +924,6 @@
         }
 
       }
-
-
-      /*$.each(item, function(index, val) {
-        $item = $('#' + index)
-        
-        $item.val(val)
-
-        if (!editObjetive)
-          $item.prop('disabled', true)
-
-        if (index == 'image')
-          $imageThumb.attr('src', val)
-
-        // $('yourimageselector').attr('src', 'newsrc').load(function() {
-        //   this.width;   // Note: $(this).width() will not work for in memory images
-        // })
-
-        if (val == 'on')
-          $('#' + index).prop('checked', true)
-      })*/
     }
 
     function today() {
@@ -876,11 +1048,13 @@
           console.info("No hay egresos que mostrar")
     }
 
-    $datePurchase.value    = today()
+    $datePurchase.value = today()
     
-    $formExpenses.onsubmit = addRegister
-    $formPlace.onsubmit    = addRegister
-    $formServices.onsubmit = addRegister
+    $formExpenses.addEventListener('submit', addRegister, false)
+    $formPlace.addEventListener('submit', addRegister, false)
+    $formServices.addEventListener('submit', addRegister, false)
+    $formObjectives.addEventListener('submit', addRegister, false)
+    $uploadImage.addEventListener('change', loadImage, false)
     
     $$selects.forEach(function(select) {
       select.onchange = changeSelect
