@@ -30,9 +30,28 @@
     .off {
       display: none !important;
     }
+
+    body {
+      color: #424242;
+      font-family: arial;
+      transition: background .3s linear, color .3s linear;
+    }
+
+    body.low_battery,
+    body.low_battery *,
+    body.low_battery *:after,
+    body.low_battery *:before {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    body.dark {
+      color: #eee;
+      background: #212121;
+    }
   </style>
 </head>
-<body>
+<body class="dark low_battery">
   <h1>Control económico</h1>
   
   <nav>
@@ -46,31 +65,121 @@
     </ul>
   </nav>
 
+  <style>
+    .container_label label input + span:not(.background) {
+      font-size: 14px;
+      position: absolute;
+      top: 8px;
+    }
+
+
+
+    .container_label label {
+      position: relative;
+    }
+      .container_label label .background {
+        border-radius: 4px;
+        height: 100%;
+        overflow: hidden;
+        position: absolute;
+        width: 100%;
+        z-index: -1;
+      }
+
+        .container_label label .background:after,
+        .container_label label .background:before {
+          border-radius: 50%;
+          content: '';
+          left: -1rem;
+          padding: 0;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 0;
+        }
+
+      .container_label label input {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        border-radius: 4px;
+        font-size: 14px;
+        outline: none;
+        padding: .5rem 0;
+        transition: .3s;
+      }
+
+        .container_label label input:focus {
+          transition: .3s, border-color .3s linear .3s;
+          padding: .5rem;
+          border-color: royalblue;
+        }
+
+        .container_label label input:focus + span + .background:after,
+        .container_label label input:focus + span + .background:before {
+          padding: calc(100% + 2rem) 0 0 0;
+          width: calc(100% + 2rem);
+        }
+
+        .container_label label .background:after,
+        .container_label label .background:before {
+          background: rgba(0, 0, 0, 0.25);
+          transition: .25s linear;
+          z-index: -1;
+        }
+
+        .container_label label input:focus + span + .background:before {
+          background: rgba(255, 255, 255, 0.55);
+          transition: .25s ease .15s;
+          z-index: 0;
+        }
+
+        .container_label label input + span:not(.background) {
+          transition: .3s;
+        }
+
+        .container_label label input:focus + span:not(.background) {
+          transform: translateY(-27px);
+        }
+
+  </style>
+
   <section id="section_objectives">
     <form id="form_objectives">
       <input name="id" type="hidden">
       <h2>Registro de objetivos</h2>
-      <label>
-        <input name="name" type="text" autocomplete="off" placeholder="Nombre del objetivo" required>
-        <span>Nombre</span>
-      </label>
-      <label>
-        <input name="alias" type="text" autocomplete="off" placeholder="Nombre corto">
-        <span>Alias</span>
-      </label>
-      <label>
-        <input name="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00" required>
-        <span>Monto</span>
-      </label>
-      <label>
-        <input name="type_image" type="checkbox" data-role-toggle-on-off="#ct_file_image_objetive,#ct_src_image">
-        <span>De enlace</span>
-      </label>
-      <label id="ct_file_image_objetive">
-        <input id="upload_image" name="image" type="file">
-        <span id="name_thumbnail">Seleccionar archivo</span>
-        <img id="thumbnail" width="100" height="auto" src="https://img.icons8.com/material-outlined/100/000000/picture.png">
-      </label>
+      <div class="container_label">
+        <label>
+          <input name="name" type="text" autocomplete="off" placeholder="" required>
+          <span>Nombre</span>
+          <span class="background"></span>
+        </label>
+      </div>
+      <div class="container_label">
+        <label>
+          <input name="alias" type="text" autocomplete="off" placeholder="Nombre corto">
+          <span>Alias</span>
+        </label>
+      </div>
+      <div class="container_label">
+        <label>
+          <input name="amount" type="number" step='0.01' min="0.00" autocomplete="off" placeholder="0.00" required>
+          <span>Monto</span>
+        </label>
+      </div>
+      <div class="container_label">
+        <label>
+          <input name="type_image" type="checkbox" data-role-toggle-on-off="#ct_file_image_objetive,#ct_src_image">
+          <span>De enlace</span>
+        </label>
+      </div>
+      <div class="container_label">
+        <label id="ct_file_image_objetive">
+          <input id="upload_image" name="image" type="file">
+          <span id="name_thumbnail">Seleccionar archivo</span>
+          <img id="thumbnail" width="100" height="auto" src="https://img.icons8.com/material-outlined/100/000000/picture.png">
+        </label>
+      </div>
       <label id="ct_src_image" hidden>
         <input name="src_image" type="url" autocomplete="off" placeholder="Ejemplo: https://image.png" >
         <span>Imagen</span>
