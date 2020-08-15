@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="description" content="Control de gastos, objetivos y más">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Finanzas</title>
+	<style>
+		*,
+		*:before,
+		*:after {
+			box-sizing: border-box;
+		}
+		:root {
+			--black: #212121;
+			--font: #616161;
+			--link: #007bff;
+			--blue: #007bff;
+			--purple: #a126ff;
+			--min-height: calc(100vh - 18rem);
+		}
+		html {
+			background: white;
+			color: var(--font);
+			font-family: 'Open Sans', 'Ubuntu', 'Century gothic', arial, sans-serif;
+			font-size: 16px;
+		}
+		.input_container label * {
+			width: 100%;
+			display: block;
+		}
+		.input_container label {
+			display: flex;
+			flex-direction: column-reverse;
+			margin-bottom: 1rem;
+		}
+	</style>
+</head>
+<body>
+	<h1>Objetivo</h1>
+	<form>
+		<input id="id" name="id" type="hidden">
+		<div class="input_container">
+			<label>
+				<input id="nombre" name="nombre" type="text">
+				<span>Nombre</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<input id="alias" name="alias" type="text">
+				<span>Alias <small>(Nombre corto)</small></span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<input id="precio" name="precio" type="number">
+				<span>Monto</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<input id="fecha" name="fecha" type="date">
+				<span>Fecha</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<input id="imagen" name="imagen" type="text">
+				<span>Imagen</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<select name="meta" id="meta" multiple>
+					<option value=""></option>
+					<option value="1">Setup Gammer</option>
+					<option value="2">Ejemplo</option>
+					<option value="3">Cocina de mis sueños</option>
+				</select>
+				<span>Meta</span>
+			</label>
+		</div>
+		<button type="reset">Cancelar</button>
+		<button type="submit">Aceptar</button>
+	</form>
+	<script>
+		developerMode = true
+		function errorHandler(transaction) {
+			if (developerMode) console.error(`Error [${transaction.code}]: ${transaction.message}`)
+		}
+		function successHandler(message, data) {
+			if (developerMode) console.info(message ? message : "Ok")
+		}
+		var message = {
+			error_init : `En navegador con el que cuentas, no soporta las tecnologias requeridas para el funcionamiento de esta web app`
+		}
+		const $form = document.querySelector('form')
+		const init = () => {
+			if (window.openDatabase) {
+				db          = openDatabase('finanzas', '1.0', 'finanzas', 2 * 1024 * 1024) // Base de datos 2MB
+				var createGoals = `CREATE TABLE IF NOT EXISTS metas (
+																		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+																		nombre TEXT NOT NULL,
+																		alias TEXT,
+																		precio REAL DEFAULT 0.00,
+																		fecha TEXT,
+																		imagen TEXT,
+																		orden INTEGER DEFAULT 0,
+																		fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+																		fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
+																		estatus INTEGER DEFAULT 1
+																	)`
+				var deleteGoals = `DROP TABLE IF EXISTS metas`
+				var insertGoals = `INSERT INTO metas (nombre, alias, precio, fecha, imagen) VALUES (?, ?, ?, ?, ?)`
+				db.transaction(function(tx) {
+					tx.executeSql(createGoals)
+				}, errorHandler, successHandler("Se creo exitosamente"))
+				db.transaction(function(tx) {
+					tx.executeSql('SELECT * FROM metas', [], function(tx, data) {
+						// console.log(data)
+					})
+				}, errorHandler, successHandler("Se creo exitosamente"))
+				/*db.transaction(function(tx) {
+					tx.executeSql(insertGoals, ['Nombre1', 'N2', 199.99, '2020-08-02', ''])
+				}, errorHandler, successHandler("Se creo exitosamente"))*/
+				/*db.transaction(function(tx) {
+					tx.executeSql(insertGoals, ['Nombre2', 'N2', 299.99, '2020-08-02', '', 1])
+				}, errorHandler, successHandler("Se creo exitosamente"))*/
+				/*db.transaction(function(tx) {
+					tx.executeSql(deleteGoals)
+				}, errorHandler, successHandler("Se elimino correctamente"))*/
+			} else console.error(error_init)
+		}
+		window.addEventListener('load', init, false)
+		$form.addEventListener('submit', function() {
+			event.preventDefault()
+			event.stopPropagation()
+			const insertGoals = `INSERT INTO metas -(nombre, alias, precio, fecha, imagen) VALUES ('Edgar', 'E', '99', '1988-09-22', '')`
+			const info        = new FormData(this)
+			let data          = []
+			for (var pair of info.entries()) {
+			    data.push(pair[1])
+			}
+			if (!data[0]) data.shift()
+			console.log(data)
+			db.transaction(function(tx) {
+				tx.executeSql(insertGoals, [])
+			}, errorHandler, successHandler("Se creo exitosamente"))
+		}, false)
+	</script>
+</body>
+</html>
