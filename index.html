@@ -26,7 +26,7 @@
 			font-family: 'Open Sans', 'Ubuntu', 'Century gothic', arial, sans-serif;
 			font-size: 16px;
 		}
-		.input_container label * {
+		.input_container label *:not([hidden]) {
 			width: 100%;
 			display: block;
 		}
@@ -67,9 +67,18 @@
 		</div>
 		<div class="input_container">
 			<label>
-				<input id="imagen" name="imagen" type="text">
+				<input id="image_mode" type="checkbox">
+				<span>Imagen por URL</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<input id="upload_image" type="file">
+				<input id="image_url" type="url" placeholder="Pega la URL de la imagen" hidden>
 				<span>Imagen</span>
 			</label>
+			<img id="image_thumbnail" src="">
+			<input id="imagen" name="imagen" type="text">
 		</div>
 		<div class="input_container">
 			<label>
@@ -88,7 +97,40 @@
 	<script>
 		developerMode = true
 		function errorHandler(transaction) {
-			if (developerMode) console.error(`Error [${transaction.code}]: ${transaction.message}`)
+			if (developerMode) console.error(transaction)
+		}
+		function loadImage(event) {
+			// FileList object
+			// Obtenemos la imagen del campo "file"
+			files = event.target.files
+			for (var index = 0, f; f = files[index]; index++) {
+				//Solo admitimos imágenes.
+				if (!f.type.match('image.*')) continue
+				reader = new FileReader()
+				reader.onload = (function(theFile) {
+					return function(event) {
+						// Creamos la imagen.
+						tmpSrc				= event.target.result
+						$imageThumbnail.src	= tmpSrc
+						$imagen.value		= tmpSrc
+            			data				= {}
+						_size				= " " + (((event.total / 1024) / 1024) * 1024).toFixed(2) + " KB"
+						$image.title		= decodeURI(theFile.name) + _size
+						setTimeout(function() {
+							x = $imageThumbnail.width
+							y = $imageThumbnail.height
+							if (x > y) {
+								$imageThumbnail.classList.remove('y')
+								$imageThumbnail.classList.add('x')
+							} else {
+								$imageThumbnail.classList.remove('x')
+								$imageThumbnail.classList.add('y')
+							}
+						}, 300)
+					}
+				})(f)
+				reader.readAsDataURL(f)
+			}
 		}
 		function successHandler(message, data) {
 			if (developerMode) console.info(message ? message : "Ok")
@@ -96,7 +138,12 @@
 		var message = {
 			error_init : `En navegador con el que cuentas, no soporta las tecnologias requeridas para el funcionamiento de esta web app`
 		}
-		const $form = document.querySelector('form')
+		const $uploadImage		= document.querySelector('#upload_image')
+		const $form				= document.querySelector('form')
+		const $imagen			= document.querySelector('#imagen')
+		const $imageMode		= document.querySelector('#image_mode')
+		const $imageThumbnail	= document.querySelector('#image_thumbnail')
+		const $imageUrl			= document.querySelector('#image_url')
 		const init = () => {
 			if (window.openDatabase) {
 				db          = openDatabase('finanzas', '1.0', 'finanzas', 2 * 1024 * 1024) // Base de datos 2MB
@@ -113,7 +160,6 @@
 																		estatus INTEGER DEFAULT 1
 																	)`
 				var deleteGoals = `DROP TABLE IF EXISTS metas`
-				var insertGoals = `INSERT INTO metas (nombre, alias, precio, fecha, imagen) VALUES (?, ?, ?, ?, ?)`
 				db.transaction(function(tx) {
 					tx.executeSql(createGoals)
 				}, errorHandler, successHandler("Se creo exitosamente"))
@@ -123,31 +169,41 @@
 					})
 				}, errorHandler, successHandler("Se creo exitosamente"))
 				/*db.transaction(function(tx) {
-					tx.executeSql(insertGoals, ['Nombre1', 'N2', 199.99, '2020-08-02', ''])
-				}, errorHandler, successHandler("Se creo exitosamente"))*/
-				/*db.transaction(function(tx) {
-					tx.executeSql(insertGoals, ['Nombre2', 'N2', 299.99, '2020-08-02', '', 1])
-				}, errorHandler, successHandler("Se creo exitosamente"))*/
-				/*db.transaction(function(tx) {
 					tx.executeSql(deleteGoals)
 				}, errorHandler, successHandler("Se elimino correctamente"))*/
+				document.querySelector('#nombre').focus()
 			} else console.error(error_init)
 		}
 		window.addEventListener('load', init, false)
+    	$uploadImage.addEventListener('change', loadImage, false)
 		$form.addEventListener('submit', function() {
 			event.preventDefault()
 			event.stopPropagation()
-			const insertGoals = `INSERT INTO metas -(nombre, alias, precio, fecha, imagen) VALUES ('Edgar', 'E', '99', '1988-09-22', '')`
-			const info        = new FormData(this)
-			let data          = []
-			for (var pair of info.entries()) {
-			    data.push(pair[1])
-			}
+			const form = this
+			const info = new FormData(form)
+			let data   = []
+			for (var pair of info.entries())
+				data.push(pair[1])
 			if (!data[0]) data.shift()
-			console.log(data)
-			db.transaction(function(tx) {
-				tx.executeSql(insertGoals, [])
-			}, errorHandler, successHandler("Se creo exitosamente"))
+			db.transaction(function(transaction) {
+				const insert = 'INSERT INTO metas (nombre, alias, precio, fecha, imagen) VALUES (?, ?, ?, ?, ?)'
+				transaction.executeSql(insert, data, function() {
+					form.reset()
+					$imageThumbnail.src = ''
+					alert("Guardado")
+				}, function(transaction, error) {
+					error(error.message)
+				})
+			})
+		}, false)
+		$imageMode.addEventListener('change', function() {
+			$imagen.src			= ''
+			$uploadImage.hidden	= !$uploadImage.hidden
+			$imageUrl.hidden	= !$imageUrl.hidden
+		})
+		$imageUrl.addEventListener('change', function() {
+			$imageThumbnail.src	= this.value
+			$imagen.value		= this.value
 		}, false)
 	</script>
 </body>
