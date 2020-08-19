@@ -49,12 +49,40 @@
       color: #eee;
       background: #212121;
     }
+
+    section:not(.show) {
+      display: none;
+    }
   </style>
 </head>
-<body class="dark low_battery">
+<body class="">
   <h1>Control económico</h1>
   
   <nav>
+    <style>
+      nav {
+        position: fixed;
+        background: white;
+        top: 0;
+        left: 0;
+        min-height: 100vh;
+        z-index: 1;
+      }
+      nav:not(:hover) {
+        transform: translate3d(calc(-82% - 1rem), 0, 0);
+      }
+        nav a {
+          color: inherit;
+          text-decoration: none;
+          padding: .5rem 1rem;
+          display: block;
+        }
+        nav ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+    </style>
     <ul>
       <li><a href="">Adeudos</a></li>
       <li><a href="">Ahorros</a></li>
@@ -71,8 +99,6 @@
       position: absolute;
       top: 8px;
     }
-
-
 
     .container_label label {
       position: relative;
@@ -144,7 +170,7 @@
 
   </style>
 
-  <section id="section_objectives">
+  <section id="section_objectives" class="show">
     <form id="form_objectives">
       <input name="id" type="hidden">
       <h2>Registro de objetivos</h2>
@@ -352,6 +378,31 @@
     developer = false
     itemEdit  = null
     editItem  = false
+
+    class goal {
+      constructor(name, alias, price, objetive, history) {
+        this.alias    = alias
+        this.history  = history
+        this.name     = name
+        this.objetive = objetive
+        this.price    = price
+      }
+    }
+    class objetive {
+      constructor(name, date, image, budget, labels) {
+        this.budget = budget
+        this.date   = date
+        this.image  = image
+        this.labels = labels
+        this.name   = name
+      }
+    }
+    class saveRecord {
+      constructor(table, obj) {
+        table,
+        obj
+      }
+    }
 
     _objectives = {
                     objectives  : [],
@@ -603,6 +654,11 @@
                                   _wayPay       = this.expenses[key].way_pay
                                   _datePurchase = this.expenses[key].date_purchase
                                   _amount       = this.expenses[key].amount
+
+                                  if (_datePurchase) {
+                                    _datePurchaseTMP = _datePurchase.split('-')
+                                    _datePurchase = `${_datePurchaseTMP[2]}/${_datePurchaseTMP[1]}/${_datePurchaseTMP[0]}`
+                                  }
                                   
                                   $tr += '<tr data-id="' + _id + '" title="id: ' + _id + '. index: ' + key + '">'+
                                             '<td>' + _name + '</td>'+
