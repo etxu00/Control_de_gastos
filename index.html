@@ -52,14 +52,8 @@
 </head>
 <body>
 	<!-- <h1>Meta</h1> -->
-	<!-- <div class="row" data-id="1">
-		<div class="column"><img src="https://dessa.com.mx/wp-content/uploads/2018/09/p_7_3_7_737-Sillon-Ejecutivo-RM-9000.jpg" alt=""></div>
-		<div class="column">Sillon Ejecutivo RM-9000</div>
-		<div class="column">Silla</div>
-		<div class="column">$16,000.00</div>
-		<div class="column">22/09/1988</div>
-	</div> -->
-	<form hidden>
+	<section id="table_container"></section>
+	<form>
 		<input id="id" name="id" type="hidden">
 		<div class="input_container">
 			<label>
@@ -104,7 +98,15 @@
 		<button type="submit" disabled>Aceptar</button>
 	</form>
 	<script>
-		developerMode = true
+		/*
+			MAXIMUN GERRERO PECHOS_DE_ADAMATIUM LOMO_PLATEADO EMPLAZADOR AZTECA DE-BRONCE/PLATA/ORO/DIAMANTE SUPER_SAYAN GOOD/ULTRA-GOOD // Gaminficación de nivel de usuario para comunidad HUNTER
+			Este nivel exige la más alta beneración de la comunidad. Sus palabras van más alla de la verdad, sera benerado y aclamado por todos y TU LENGUA estara a merced de sus genitales COMO y CUANDO quiera 
+		*/
+		developerMode	= true
+		messages		= {
+								error_init	: `En navegador con el que cuentas, no soporta las tecnologias requeridas para el funcionamiento de esta web app`,
+								no_data		: `No hay datos para mostrar`
+							}
 		class DB {
 			constructor(nameDB) {
 				this.name		= nameDB
@@ -113,6 +115,15 @@
 										message_1 : 'Tabla creada correctamente.',
 										message_2 : 'No se especifico el nombre de la tabla a eliminar.',
 										message_3 : 'Registro agregado correctamente.',
+										message_4 : '"¿Deseas eliminar todas tus metas?"',
+										message_5 : '"¡¿En serio?!"',
+										message_6 : '"¿Estas seguro?"',
+										message_7 : '"¿Deberas?"',
+										message_8 : '"¿Deberitas?"',
+										message_9 : '"¡¡¡Esta es la ultima oportuniad!!!"',
+										message_10 : '"Bueno otra y ya"',
+										message_11 : '"¡¡¡Ah!!! NO PUEDES.\nNo tienes permisos. ;)',
+										message_12 : '"No te creas, es broma.\nYa estan eliminados.\nSer ambicioso con moderación no es malo.\nCrea una nueva meta. Animate',
 									}
 			}
 			init() {
@@ -140,19 +151,24 @@
 				this.execute(createGoals)
 				this.execute(createObjetives)
 			}
-			getTable(query, callBack) {
-				let result = []
+			getTable(nameTable, callBack) {
+				const instruction = `SELECT * FROM ${nameTable}`
 				this.db.transaction(function (tx) {
-					tx.executeSql(query, [], function(tx, rs) {
-						for(var i=0; i < rs.rows.length; i++) {
-							var row = rs.rows.item(i)
-							result[i] = {
-											id   : row['id'],
-											name : row['name']
-										}
-						}
-						console.log(result)
-						callBack(result)
+					tx.executeSql(instruction, [], function(tx, result) {
+						let datas = []
+						if (result.rows.length) {
+							for(let iteration = 0; iteration < result.rows.length; iteration++) {
+								datas.push({
+												id		: result.rows[iteration]['id'],
+												name	: result.rows[iteration]['nombre'],
+												alias	: result.rows[iteration]['alias'],
+												price	: result.rows[iteration]['precio'],
+												date	: result.rows[iteration]['fecha'],
+												img		: result.rows[iteration]['imagen'],
+											})
+							}
+							return datas
+						} else {}
 					})
 				})
 			}
@@ -177,17 +193,19 @@
 			}
 			deleteAllTable(nameTable) {
 				if (nameTable) {
-					if (confirm("¿Estas seguro que deseas eliminar todas tus metas?")) {
-						if (confirm("¿Deberas?")) {
-							if (confirm("¿Estas seguro?")) {
-								if (confirm("¿Deberitas?")) {
-									if (confirm("¡¡¡Esta es la ultima oportuniad!!!")) {
-										if (confirm("Bueno otra y ya")) {
-											alert("¡¡¡Ah!!! NO PUEDES. NO tienes permisos. ;)")
-											const deleteTable = `DELETE FROM ${nameTable}`
-											this.execute(deleteTable)
-											alert("No te creas.\nYa estan eliminados.\nSer ambicioso con moderación no es malo.\nCrea una nueva meta. Animate")
-										}
+					if (confirm(message_4)) {
+						if (confirm(message_5)) {
+							if (confirm(message_6)) {
+								if (confirm(message_7)) {
+									if (confirm(message_8)) {
+										if (confirm(message_9)) {
+											if (confirm(message_10)) {
+												alert(message_11)
+												const deleteTable = `DELETE FROM ${nameTable}`
+												this.execute(deleteTable)
+												alert(message_12)
+											}
+										} 
 									}
 								}
 							}
@@ -195,6 +213,23 @@
 					}
 				} else console.error(this.messages.message_2)
 			}
+		}
+		const templateRowtable = rowObj =>
+			`<div class="row" data-id="${rowObj.id || ''}">
+				<div class="column"><img src="${rowObj.img || ''}" alt=""></div>
+				<div class="column">${rowObj.name || ''}</div>
+				<div class="column">${rowObj.alias || ''}</div>
+				<div class="column">${rowObj.price || ''}</div>
+				<div class="column">${rowObj.date || ''}</div>
+			</div>`
+		function _getParents(el, parentSelector) {
+			parentSelector || document
+		    let parent = el.parentNode
+		    while (parent !== parentSelector) {
+		        let parentTMP = parent
+		        parent = parentTMP.parentNode
+		    }
+		    return parentSelector
 		}
 		function loadImage(event) {
 			// FileList object
@@ -216,9 +251,6 @@
 				reader.readAsDataURL(f)
 			}
 		}
-		var messages = {
-			error_init : `En navegador con el que cuentas, no soporta las tecnologias requeridas para el funcionamiento de esta web app`
-		}
 		function wayToLoadTheImage() {
 			$imagen.src			= ''
 			$imageThumbnail.src	= ''
@@ -238,7 +270,7 @@
 			}, 300)
 		}
 		function enableForm() {
-			const $form				= getParents(this, document.querySelector('form'))
+			const $form				= _getParents(this, document.querySelector('form'))
 			const _totalRequired	= $form.querySelectorAll('[required]').length
 			let _disabled			= true
 			if (_totalRequired) {
@@ -251,14 +283,8 @@
 			} else _disabled = false
 			$form.querySelector('[type="submit"]').disabled = _disabled
 		}
-		function getParents(el, parentSelector) {
-			parentSelector || document
-		    let parent = el.parentNode
-		    while (parent !== parentSelector) {
-		        let parentTMP = parent
-		        parent = parentTMP.parentNode
-		    }
-		    return parentSelector
+		function defaultImageByError() {
+			this.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMzA4LjggMzA4LjgiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMwOC44IDMwOC44OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojNEE1NjZFOyIgZD0iTTM1LjYsMTguOGgxODBjMTkuNiwwLDM1LjYsMTYsMzUuNiwzNS42djE4NS4yYzAsMTkuNi0xNiwzNS42LTM1LjYsMzUuNmgtMTgwDQoJCUMxNiwyNzUuMiwwLDI1OS4yLDAsMjM5LjZWNTRDMCwzNC44LDE2LDE4LjgsMzUuNiwxOC44eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMTE2LjQsMTg2LjRsLTUyLjgtNTIuOEwwLDE5Ny4ydjEzLjJ2MjguOGMwLDE5LjYsMTYsMzUuNiwzNS42LDM1LjZoMTgwYzE5LjYsMCwzNS42LTE2LDM1LjYtMzUuNg0KCQl2LTI4Ljh2LTM5LjZsLTU5LjYtNjBMMTE2LjQsMTg2LjR6Ii8+DQoJPGNpcmNsZSBzdHlsZT0iZmlsbDojRkZDQzAzOyIgY3g9IjExNC44IiBjeT0iMTAzLjYiIHI9IjIyLjQiLz4NCgk8Y2lyY2xlIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBjeD0iMjUxLjIiIGN5PSIyMzIuNCIgcj0iNTcuNiIvPg0KPC9nPg0KPGc+DQoJPHBhdGggc3R5bGU9ImZpbGw6IzAwQjU5NDsiIGQ9Ik0yMjQsMjQwLjhjLTQuNCwwLTguNC0zLjYtOC40LTguNHMzLjYtOC40LDguNC04LjRoNTQuNGM0LjgsMCw4LjQsMy42LDguNCw4LjRzLTMuNiw4LjQtOC40LDguNA0KCQlIMjI0eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMjU5LjYsMjU5LjZjMCw0LjgtMy42LDguNC04LjQsOC40cy04LjQtMy42LTguNC04LjR2LTU0YzAtNC40LDMuNi04LjQsOC40LTguNA0KCQljNC40LDAsOC40LDMuNiw4LjQsOC40VjI1OS42eiIvPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo="
 		}
 		function saveForm(event) {
 			event.preventDefault()
@@ -277,30 +303,34 @@
 			const status = window.app.insert(queryInsert, datas)
 			if (status) form.reset()
 		}
+		function showTable(nameTable) {
+			const data = window.app.getTable('metas')
+			let $table = ``
+			if (data.length) {
+				for (let i = 0; i < data.length; i++) $table += templateRowtable(table[i])
+				$tableContainer.innerHTML = $table
+			} else console.info(messages.no_data)
+		}
 		const $uploadImage		= document.querySelector('#upload_image')
 		const $form				= document.querySelector('form')
 		const $imagen			= document.querySelector('#imagen')
+		const $tableContainer	= document.querySelector('#table_container')
 		const $imageMode		= document.querySelector('#image_mode')
 		const $imageThumbnail	= document.querySelector('#image_thumbnail')
 		const $imageUrl			= document.querySelector('#image_url')
 		const $inputs			= document.querySelectorAll('input, select, textarea')
 		const init = () => {
 			if (window.openDatabase) {
-				app = new DB('finanzas')
+				window.app = new DB('finanzas')
 				app.init()
-				data = app.getTable(`select * from metas`, function(pleaseWork) {
-						console.log(pleaseWork)
-						})
 			} else console.error(messages.error_init)
 		}
 		window.addEventListener('load', init, false)
-    	$uploadImage.addEventListener('change', loadImage, false)
+		$uploadImage.addEventListener('change', loadImage, false)
 		$form.addEventListener('submit', saveForm, false)
 		$imageMode.addEventListener('change', wayToLoadTheImage, false)
 		$imageUrl.addEventListener('change', adjustImage, false)
-		$imageThumbnail.addEventListener('error', function() {
-			this.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMzA4LjggMzA4LjgiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMwOC44IDMwOC44OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojNEE1NjZFOyIgZD0iTTM1LjYsMTguOGgxODBjMTkuNiwwLDM1LjYsMTYsMzUuNiwzNS42djE4NS4yYzAsMTkuNi0xNiwzNS42LTM1LjYsMzUuNmgtMTgwDQoJCUMxNiwyNzUuMiwwLDI1OS4yLDAsMjM5LjZWNTRDMCwzNC44LDE2LDE4LjgsMzUuNiwxOC44eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMTE2LjQsMTg2LjRsLTUyLjgtNTIuOEwwLDE5Ny4ydjEzLjJ2MjguOGMwLDE5LjYsMTYsMzUuNiwzNS42LDM1LjZoMTgwYzE5LjYsMCwzNS42LTE2LDM1LjYtMzUuNg0KCQl2LTI4Ljh2LTM5LjZsLTU5LjYtNjBMMTE2LjQsMTg2LjR6Ii8+DQoJPGNpcmNsZSBzdHlsZT0iZmlsbDojRkZDQzAzOyIgY3g9IjExNC44IiBjeT0iMTAzLjYiIHI9IjIyLjQiLz4NCgk8Y2lyY2xlIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBjeD0iMjUxLjIiIGN5PSIyMzIuNCIgcj0iNTcuNiIvPg0KPC9nPg0KPGc+DQoJPHBhdGggc3R5bGU9ImZpbGw6IzAwQjU5NDsiIGQ9Ik0yMjQsMjQwLjhjLTQuNCwwLTguNC0zLjYtOC40LTguNHMzLjYtOC40LDguNC04LjRoNTQuNGM0LjgsMCw4LjQsMy42LDguNCw4LjRzLTMuNiw4LjQtOC40LDguNA0KCQlIMjI0eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMjU5LjYsMjU5LjZjMCw0LjgtMy42LDguNC04LjQsOC40cy04LjQtMy42LTguNC04LjR2LTU0YzAtNC40LDMuNi04LjQsOC40LTguNA0KCQljNC40LDAsOC40LDMuNiw4LjQsOC40VjI1OS42eiIvPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo="
-		}, false)
+		$imageThumbnail.addEventListener('error', defaultImageByError, false)
 		$inputs.forEach(function(item) {
 			item.addEventListener('change', enableForm, false)
 		})
