@@ -51,8 +51,7 @@
 	</style>
 </head>
 <body>
-	<!-- <h1>Meta</h1> -->
-	<section id="table_container"></section>
+	<section id="table_container" class="items"></section>
 	<form>
 		<input id="id" name="id" type="hidden">
 		<div class="input_container">
@@ -127,48 +126,49 @@
 									}
 			}
 			init() {
-				const createGoals = `CREATE TABLE IF NOT EXISTS metas (
-																		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-																		nombre TEXT NOT NULL,
-																		alias TEXT,
-																		precio REAL DEFAULT 0.00,
-																		fecha TEXT,
-																		imagen TEXT,
-																		orden INTEGER DEFAULT 0,
-																		fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
-																		fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
-																		estatus INTEGER DEFAULT 1
-																	)`
-				const createObjetives = `CREATE TABLE IF NOT EXISTS objectives (
-																		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-																		nombre TEXT NOT NULL,
-																		alias TEXT,
-																		imagen TEXT,
-																		fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
-																		fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
-																		estatus INTEGER DEFAULT 1
-																	)`
-				this.execute(createGoals)
-				this.execute(createObjetives)
+				if (this.db) {
+					const createGoals = `CREATE TABLE IF NOT EXISTS metas (
+																			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+																			nombre TEXT NOT NULL,
+																			alias TEXT,
+																			precio REAL DEFAULT 0.00,
+																			fecha TEXT,
+																			imagen TEXT,
+																			orden INTEGER DEFAULT 0,
+																			fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+																			fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
+																			estatus INTEGER DEFAULT 1
+																		)`
+					const createObjetives = `CREATE TABLE IF NOT EXISTS objectives (
+																			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+																			nombre TEXT NOT NULL,
+																			alias TEXT,
+																			imagen TEXT,
+																			fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+																			fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
+																			estatus INTEGER DEFAULT 1
+																		)`
+					this.execute(createGoals)
+					this.execute(createObjetives)
+				}
 			}
 			getTable(nameTable, callBack) {
 				const instruction = `SELECT * FROM ${nameTable}`
-				this.db.transaction(function (tx) {
-					tx.executeSql(instruction, [], function(tx, result) {
+				this.db.transaction(function(transaction) {
+					transaction.executeSql(instruction, [], function(transaction, results) {
 						let datas = []
-						if (result.rows.length) {
-							for(let iteration = 0; iteration < result.rows.length; iteration++) {
+						if (results.rows.length) {
+							for (let i = 0; i < results.rows.length; i++)
 								datas.push({
-												id		: result.rows[iteration]['id'],
-												name	: result.rows[iteration]['nombre'],
-												alias	: result.rows[iteration]['alias'],
-												price	: result.rows[iteration]['precio'],
-												date	: result.rows[iteration]['fecha'],
-												img		: result.rows[iteration]['imagen'],
+												id		: results.rows[i].id,
+												img		: results.rows[i].imagen,
+												name	: results.rows[i].nombre,
+												alias	: results.rows[i].alias,
+												price	: results.rows[i].precio,
+												date	: results.rows[i].fecha,
 											})
-							}
-							return datas
-						} else {}
+						}
+				    	callBack(datas)
 					})
 				})
 			}
@@ -214,13 +214,26 @@
 				} else console.error(this.messages.message_2)
 			}
 		}
+		const imageThumbnail = () => `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNDI2LjY2NyA0MjYuNjY3IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0MjYuNjY3IDQyNi42Njc7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8Y2lyY2xlIGN4PSIyMTMuMzMzIiBjeT0iMjM0LjY2NyIgcj0iNjguMjY3Ii8+DQoJPC9nPg0KPC9nPg0KPGc+DQoJPGc+DQoJCTxwYXRoIGQ9Ik0zODQsNjRoLTY3LjYyN2wtMzkuMDQtNDIuNjY3aC0xMjhMMTEwLjI5Myw2NEg0Mi42NjdDMTkuMDkzLDY0LDAsODMuMDkzLDAsMTA2LjY2N3YyNTYNCgkJCWMwLDIzLjU3MywxOS4wOTMsNDIuNjY3LDQyLjY2Nyw0Mi42NjdIMzg0YzIzLjU3MywwLDQyLjY2Ny0xOS4wOTMsNDIuNjY3LTQyLjY2N3YtMjU2QzQyNi42NjcsODMuMDkzLDQwNy41NzMsNjQsMzg0LDY0eg0KCQkJIE0yMTMuMzMzLDM0MS4zMzNjLTU4Ljg4LDAtMTA2LjY2Ny00Ny43ODctMTA2LjY2Ny0xMDYuNjY3UzE1NC40NTMsMTI4LDIxMy4zMzMsMTI4UzMyMCwxNzUuNzg3LDMyMCwyMzQuNjY3DQoJCQlTMjcyLjIxMywzNDEuMzMzLDIxMy4zMzMsMzQxLjMzM3oiLz4NCgk8L2c+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8L3N2Zz4NCg==`
 		const templateRowtable = rowObj =>
 			`<div class="row" data-id="${rowObj.id || ''}">
-				<div class="column"><img src="${rowObj.img || ''}" alt=""></div>
+				<div class="column">
+					<picture>
+						<source srcset="${imageThumbnail()}" media="(max-width: 500px)" >
+						<img src="${rowObj.img || ''}" alt="">
+					</picture>
+				</div>
 				<div class="column">${rowObj.name || ''}</div>
 				<div class="column">${rowObj.alias || ''}</div>
 				<div class="column">${rowObj.price || ''}</div>
 				<div class="column">${rowObj.date || ''}</div>
+				<div class="controls_container">
+					<div class="move"></div>
+					<div class="select_item">
+						<input type="checkbox">
+						<span></span>
+					</div>
+				</div>
 			</div>`
 		function _getParents(el, parentSelector) {
 			parentSelector || document
@@ -323,6 +336,12 @@
 			if (window.openDatabase) {
 				window.app = new DB('finanzas')
 				app.init()
+				app.getTable('metas', function(results) {
+					html = ``
+					for (key in results)
+					    html += templateRowtable(results[key])
+					$tableContainer.innerHTML = html
+				})
 			} else console.error(messages.error_init)
 		}
 		window.addEventListener('load', init, false)
