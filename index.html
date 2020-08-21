@@ -51,6 +51,10 @@
 	</style>
 </head>
 <body>
+	<nav>
+		<a href="#">Objetivos</a>
+		<a href="#">Metas</a>
+	</nav>
 	<section id="table_container" class="items"></section>
 	<form>
 		<input id="id" name="id" type="hidden">
@@ -80,17 +84,29 @@
 		</div>
 		<div class="input_container">
 			<label>
+				<input id="image_mode" type="checkbox">
+				<span>Imagen por URL</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
 				<input id="upload_image" type="file">
 				<input id="image_url" type="url" placeholder="Pega la URL de la imagen" hidden>
 				<span>Imagen</span>
 			</label>
-			<img id="image_thumbnail" src="">
+			<img id="image_thumbnail" src="" alt="Imagén de tu meta">
 			<input id="imagen" name="imagen" type="hidden">
 		</div>
 		<div class="input_container">
 			<label>
-				<input id="image_mode" type="checkbox">
-				<span>Imagen por URL</span>
+				<select name="objetivo" id="objetivo"></select>
+				<span>Objetivo</span>
+			</label>
+		</div>
+		<div class="input_container">
+			<label>
+				<select name="categoria" id="categoria" multiple></select>
+				<span>Categoria</span>
 			</label>
 		</div>
 		<button type="reset">Cancelar</button>
@@ -127,7 +143,7 @@
 			}
 			init() {
 				if (this.db) {
-					const createGoals = `CREATE TABLE IF NOT EXISTS metas (
+					const goals = `CREATE TABLE IF NOT EXISTS metas (
 																			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 																			nombre TEXT NOT NULL,
 																			alias TEXT,
@@ -139,7 +155,18 @@
 																			fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
 																			estatus INTEGER DEFAULT 1
 																		)`
-					const createObjetives = `CREATE TABLE IF NOT EXISTS objectives (
+					const goalsCategories = `CREATE TABLE IF NOT EXISTS metas_categorias (
+																			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+																			nombre TEXT NOT NULL,
+																			descripcion TEXT NOT NULL,
+																			color TEXT,
+																			imagen TEXT,
+																			orden INTEGER DEFAULT 0,
+																			fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+																			fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
+																			estatus INTEGER DEFAULT 1
+																		)`
+					const objetives = `CREATE TABLE IF NOT EXISTS objetivos (
 																			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 																			nombre TEXT NOT NULL,
 																			alias TEXT,
@@ -148,8 +175,19 @@
 																			fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
 																			estatus INTEGER DEFAULT 1
 																		)`
-					this.execute(createGoals)
-					this.execute(createObjetives)
+					const objectivesCategories = `CREATE TABLE IF NOT EXISTS objetivos_categorias (
+																			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+																			nombre TEXT NOT NULL,
+																			descripcion TEXT NOT NULL,
+																			color TEXT,
+																			imagen TEXT,
+																			orden INTEGER DEFAULT 0,
+																			fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+																			fecha_update TEXT DEFAULT CURRENT_TIMESTAMP,
+																			estatus INTEGER DEFAULT 1
+																		)`
+					this.execute(goals)
+					this.execute(objetives)
 				}
 			}
 			getTable(nameTable, callBack) {
@@ -219,8 +257,8 @@
 			`<div class="row" data-id="${rowObj.id || ''}">
 				<div class="column">
 					<picture>
-						<source srcset="${imageThumbnail()}" media="(max-width: 500px)" >
-						<img src="${rowObj.img || ''}" alt="">
+						<source srcset="${imageThumbnail()}" media="(max-width: 500px)">
+						<img src="${rowObj.img || ''}">
 					</picture>
 				</div>
 				<div class="column">${rowObj.name || ''}</div>
@@ -314,15 +352,18 @@
 			tokens.shift()
 			let queryInsert = `INSERT INTO metas (${tokens.map((i, item) => i)}) VALUES (${tokens.map((i, item) => '?')})`
 			const status = window.app.insert(queryInsert, datas)
-			if (status) form.reset()
+			if (status) {
+				form.reset()
+				showTable('metas')
+			}
 		}
 		function showTable(nameTable) {
-			const data = window.app.getTable('metas')
-			let $table = ``
-			if (data.length) {
-				for (let i = 0; i < data.length; i++) $table += templateRowtable(table[i])
-				$tableContainer.innerHTML = $table
-			} else console.info(messages.no_data)
+			app.getTable(nameTable, function(results) {
+				html = ``
+				for (key in results)
+					html += templateRowtable(results[key])
+				$tableContainer.innerHTML = html
+			})
 		}
 		const $uploadImage		= document.querySelector('#upload_image')
 		const $form				= document.querySelector('form')
