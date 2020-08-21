@@ -114,15 +114,15 @@
 										message_1 : 'Tabla creada correctamente.',
 										message_2 : 'No se especifico el nombre de la tabla a eliminar.',
 										message_3 : 'Registro agregado correctamente.',
-										message_4 : '"¿Deseas eliminar todas tus metas?"',
-										message_5 : '"¡¿En serio?!"',
-										message_6 : '"¿Estas seguro?"',
-										message_7 : '"¿Deberas?"',
-										message_8 : '"¿Deberitas?"',
-										message_9 : '"¡¡¡Esta es la ultima oportuniad!!!"',
-										message_10 : '"Bueno otra y ya"',
-										message_11 : '"¡¡¡Ah!!! NO PUEDES.\nNo tienes permisos. ;)',
-										message_12 : '"No te creas, es broma.\nYa estan eliminados.\nSer ambicioso con moderación no es malo.\nCrea una nueva meta. Animate',
+										message_4 : '¿Deseas eliminar todas tus metas?',
+										message_5 : '¡¿En serio?!',
+										message_6 : '¿Estas seguro?',
+										message_7 : '¿Deberas?',
+										message_8 : '¿Deberitas?',
+										message_9 : '¡¡¡Esta es la ultima oportuniad!!!',
+										message_10 : 'Bueno otra y ya',
+										message_11 : '¡¡¡Ah!!! NO PUEDES.\nNo tienes permisos. ;)',
+										message_12 : 'No te creas, es broma.\nYa estan eliminados.\nSer ambicioso con moderación no es malo.\nCrea una nueva meta. Animate',
 									}
 			}
 			init() {
@@ -193,17 +193,17 @@
 			}
 			deleteAllTable(nameTable) {
 				if (nameTable) {
-					if (confirm(message_4)) {
-						if (confirm(message_5)) {
-							if (confirm(message_6)) {
-								if (confirm(message_7)) {
-									if (confirm(message_8)) {
-										if (confirm(message_9)) {
-											if (confirm(message_10)) {
-												alert(message_11)
+					if (confirm(this.messages.message_4)) {
+						if (confirm(this.messages.message_5)) {
+							if (confirm(this.messages.message_6)) {
+								if (confirm(this.messages.message_7)) {
+									if (confirm(this.messages.message_8)) {
+										if (confirm(this.messages.message_9)) {
+											if (confirm(this.messages.message_10)) {
+												alert(this.messages.message_11)
 												const deleteTable = `DELETE FROM ${nameTable}`
 												this.execute(deleteTable)
-												alert(message_12)
+												alert(this.messages.message_12)
 											}
 										} 
 									}
