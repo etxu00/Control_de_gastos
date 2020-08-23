@@ -280,13 +280,25 @@
 				</div>
 			</div>`
 		function _getParents(el, parentSelector) {
-			parentSelector || document
-		    let parent = el.parentNode
-		    while (parent !== parentSelector) {
-		        let parentTMP = parent
-		        parent = parentTMP.parentNode
-		    }
-		    return parentSelector
+			let $itemToSearch	= parentSelector ? document.querySelector(parentSelector) : document
+			let $items			= document.querySelectorAll(parentSelector)
+			let $parent			= el.parentNode
+			while ($parent !== $itemToSearch) {
+				let $parentTMP	= $parent
+				let ok			= false
+				if ($items.length) {
+					for (let i = 0; i < $items.length; i++) {
+						if ($parent === $items[i]) {
+							$parent			= $items[i]
+							$itemToSearch 	= $items[i]
+							i				= $items.length
+							ok				= true
+						}
+					}
+				}
+				if (!ok) $parent = $parentTMP.parentNode
+			}
+			return $parent
 		}
 		function loadImage(event) {
 			// FileList object
@@ -327,7 +339,7 @@
 			}, 300)
 		}
 		function enableForm() {
-			const $form				= _getParents(this, document.querySelector('form'))
+			const $form				= _getParents(this, 'form')
 			const _totalRequired	= $form.querySelectorAll('[required]').length
 			let _disabled			= true
 			if (_totalRequired) {
@@ -375,18 +387,18 @@
 				$tableContainer.innerHTML = html
 				$items = $tableContainer.querySelectorAll('._item')
 				$checks = $tableContainer.querySelectorAll('._select_item')
-				$items.forEach(function(item) {
-					item.addEventListener('click', showItem, false)
-				})
 				$checks.forEach(function(item) {
 					item.addEventListener('change', selectItem, false)
+				})
+				$items.forEach(function(item) {
+					item.addEventListener('click', showItem, false)
 				})
 			})
 		}
 		function selectItem(event) {
 			event.preventDefault()
 			event.stopPropagation()
-			$item = _getParents(this, document.querySelector('._item'))
+			$item = _getParents(this, '._item')
 			if (this.checked) $item.classList.add('selected')
 			else $item.classList.remove('selected')
 		}
@@ -426,11 +438,11 @@
 					$tableContainer.innerHTML = html
 					$items = $tableContainer.querySelectorAll('._item')
 					$checks = $tableContainer.querySelectorAll('._select_item')
-					$items.forEach(function(item) {
-						item.addEventListener('click', showItem, false)
-					})
 					$checks.forEach(function(item) {
 						item.addEventListener('change', selectItem, false)
+					})
+					$items.forEach(function(item) {
+						item.addEventListener('click', showItem, false)
 					})
 				})
 			} else console.error(messages.error_init)
