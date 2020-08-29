@@ -42,8 +42,8 @@
 			max-width: 100px;
 		}
 		#image_thumbnail:not(.x):not(.y) {
-		    max-height: 100px;
-		    max-width: 100px;
+			max-height: 100px;
+			max-width: 100px;
 		}
 		img {
 			max-width: 100%;
@@ -51,17 +51,38 @@
 		.selected {
 			outline: 1px solid;
 		}
+		img._img.x {
+			max-width: 10rem;
+		}
+
+		img._img.y {
+			max-height: 10rem;
+		}
+		form {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		    background: white;
+		    width: 100vw;
+		    height: 100vh;
+		    padding: 1rem;
+		}
+		form.show_all_options ._more_options,
+		form:not(.show_all_options) .input_container:not(.minimum_required) {
+		    display: none;
+		}
 	</style>
 </head>
 <body>
-	<nav>
+	<!-- <nav>
 		<a href="#">Objetivos</a>
 		<a href="#">Metas</a>
-	</nav>
+	</nav> -->
+	<button id="btn_new" type="button" data-role="goal">Nuevo</button>
 	<section id="table_container" class="items"></section>
-	<form>
+	<form hidden>
 		<input id="id" name="id" type="hidden">
-		<div class="input_container">
+		<div class="input_container minimum_required">
 			<label>
 				<input id="nombre" name="nombre" type="text" required>
 				<span>Nombre</span>
@@ -75,7 +96,7 @@
 		</div>
 		<div class="input_container">
 			<label>
-				<input id="precio" name="precio" type="number">
+				<input id="precio" name="precio" type="text">
 				<span>Monto</span>
 			</label>
 		</div>
@@ -112,8 +133,9 @@
 				<span>Categoria</span>
 			</label>
 		</div>
-		<button type="reset">Cancelar</button>
+		<button class="_more_options" type="button">Más opciones</button>
 		<button type="submit" disabled>Aceptar</button>
+		<button type="reset">Cancelar</button>
 	</form>
 	<script>
 		/*
@@ -257,12 +279,13 @@
 				} else console.error(this.messages.message_2)
 			}
 		}
+		const defaultImage = () => `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMzA4LjggMzA4LjgiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMwOC44IDMwOC44OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojNEE1NjZFOyIgZD0iTTM1LjYsMTguOGgxODBjMTkuNiwwLDM1LjYsMTYsMzUuNiwzNS42djE4NS4yYzAsMTkuNi0xNiwzNS42LTM1LjYsMzUuNmgtMTgwDQoJCUMxNiwyNzUuMiwwLDI1OS4yLDAsMjM5LjZWNTRDMCwzNC44LDE2LDE4LjgsMzUuNiwxOC44eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMTE2LjQsMTg2LjRsLTUyLjgtNTIuOEwwLDE5Ny4ydjEzLjJ2MjguOGMwLDE5LjYsMTYsMzUuNiwzNS42LDM1LjZoMTgwYzE5LjYsMCwzNS42LTE2LDM1LjYtMzUuNg0KCQl2LTI4Ljh2LTM5LjZsLTU5LjYtNjBMMTE2LjQsMTg2LjR6Ii8+DQoJPGNpcmNsZSBzdHlsZT0iZmlsbDojRkZDQzAzOyIgY3g9IjExNC44IiBjeT0iMTAzLjYiIHI9IjIyLjQiLz4NCgk8Y2lyY2xlIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBjeD0iMjUxLjIiIGN5PSIyMzIuNCIgcj0iNTcuNiIvPg0KPC9nPg0KPGc+DQoJPHBhdGggc3R5bGU9ImZpbGw6IzAwQjU5NDsiIGQ9Ik0yMjQsMjQwLjhjLTQuNCwwLTguNC0zLjYtOC40LTguNHMzLjYtOC40LDguNC04LjRoNTQuNGM0LjgsMCw4LjQsMy42LDguNCw4LjRzLTMuNiw4LjQtOC40LDguNA0KCQlIMjI0eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMjU5LjYsMjU5LjZjMCw0LjgtMy42LDguNC04LjQsOC40cy04LjQtMy42LTguNC04LjR2LTU0YzAtNC40LDMuNi04LjQsOC40LTguNA0KCQljNC40LDAsOC40LDMuNiw4LjQsOC40VjI1OS42eiIvPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo=`
 		const imageThumbnail = () => `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNDI2LjY2NyA0MjYuNjY3IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0MjYuNjY3IDQyNi42Njc7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8Y2lyY2xlIGN4PSIyMTMuMzMzIiBjeT0iMjM0LjY2NyIgcj0iNjguMjY3Ii8+DQoJPC9nPg0KPC9nPg0KPGc+DQoJPGc+DQoJCTxwYXRoIGQ9Ik0zODQsNjRoLTY3LjYyN2wtMzkuMDQtNDIuNjY3aC0xMjhMMTEwLjI5Myw2NEg0Mi42NjdDMTkuMDkzLDY0LDAsODMuMDkzLDAsMTA2LjY2N3YyNTYNCgkJCWMwLDIzLjU3MywxOS4wOTMsNDIuNjY3LDQyLjY2Nyw0Mi42NjdIMzg0YzIzLjU3MywwLDQyLjY2Ny0xOS4wOTMsNDIuNjY3LTQyLjY2N3YtMjU2QzQyNi42NjcsODMuMDkzLDQwNy41NzMsNjQsMzg0LDY0eg0KCQkJIE0yMTMuMzMzLDM0MS4zMzNjLTU4Ljg4LDAtMTA2LjY2Ny00Ny43ODctMTA2LjY2Ny0xMDYuNjY3UzE1NC40NTMsMTI4LDIxMy4zMzMsMTI4UzMyMCwxNzUuNzg3LDMyMCwyMzQuNjY3DQoJCQlTMjcyLjIxMywzNDEuMzMzLDIxMy4zMzMsMzQxLjMzM3oiLz4NCgk8L2c+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8L3N2Zz4NCg==`
 		const templateRowtable = rowObj =>
 			`<div class="row _item" data-id="${rowObj.id || ''}" tabindex="1">
 				<div class="column">
 					<picture>
-						<source srcset="${imageThumbnail()}" media="(max-width: 500px)">
+						<source srcset="${imageThumbnail()}" media="(max-width: 200px)">
 						<img class="_img" src="${rowObj.img || ''}">
 					</picture>
 				</div>
@@ -314,7 +337,7 @@
 						data			= {}
 						_size			= " " + (((event.total / 1024) / 1024) * 1024).toFixed(2) + " KB"
 						$imagen.title	= decodeURI(theFile.name) + _size
-						adjustImage(tmpSrc)
+						adjustImages(tmpSrc)
 					}
 				})(f)
 				reader.readAsDataURL(f)
@@ -327,7 +350,13 @@
 			$imageUrl.hidden	= !$imageUrl.hidden
 			if (this.checked) $imageUrl.focus()
 		}
-		function adjustImage(srcImage) {
+		function adjustImage() {
+			const width  = this.width
+			const height = this.height
+			this.classList.remove('x', 'y')
+			this.classList.add(width > height ? 'x' : 'y')
+		}
+		function adjustImages(srcImage) {
 			if (this === document.querySelector('#image_url')) srcImage = this.value
 			$imageThumbnail.src	= srcImage
 			$imagen.value		= srcImage
@@ -353,7 +382,7 @@
 			$form.querySelector('[type="submit"]').disabled = _disabled
 		}
 		function defaultImageByError() {
-			this.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMzA4LjggMzA4LjgiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMwOC44IDMwOC44OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojNEE1NjZFOyIgZD0iTTM1LjYsMTguOGgxODBjMTkuNiwwLDM1LjYsMTYsMzUuNiwzNS42djE4NS4yYzAsMTkuNi0xNiwzNS42LTM1LjYsMzUuNmgtMTgwDQoJCUMxNiwyNzUuMiwwLDI1OS4yLDAsMjM5LjZWNTRDMCwzNC44LDE2LDE4LjgsMzUuNiwxOC44eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMTE2LjQsMTg2LjRsLTUyLjgtNTIuOEwwLDE5Ny4ydjEzLjJ2MjguOGMwLDE5LjYsMTYsMzUuNiwzNS42LDM1LjZoMTgwYzE5LjYsMCwzNS42LTE2LDM1LjYtMzUuNg0KCQl2LTI4Ljh2LTM5LjZsLTU5LjYtNjBMMTE2LjQsMTg2LjR6Ii8+DQoJPGNpcmNsZSBzdHlsZT0iZmlsbDojRkZDQzAzOyIgY3g9IjExNC44IiBjeT0iMTAzLjYiIHI9IjIyLjQiLz4NCgk8Y2lyY2xlIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBjeD0iMjUxLjIiIGN5PSIyMzIuNCIgcj0iNTcuNiIvPg0KPC9nPg0KPGc+DQoJPHBhdGggc3R5bGU9ImZpbGw6IzAwQjU5NDsiIGQ9Ik0yMjQsMjQwLjhjLTQuNCwwLTguNC0zLjYtOC40LTguNHMzLjYtOC40LDguNC04LjRoNTQuNGM0LjgsMCw4LjQsMy42LDguNCw4LjRzLTMuNiw4LjQtOC40LDguNA0KCQlIMjI0eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMjU5LjYsMjU5LjZjMCw0LjgtMy42LDguNC04LjQsOC40cy04LjQtMy42LTguNC04LjR2LTU0YzAtNC40LDMuNi04LjQsOC40LTguNA0KCQljNC40LDAsOC40LDMuNiw4LjQsOC40VjI1OS42eiIvPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo="
+			this.src = defaultImage()
 		}
 		function saveForm(event) {
 			event.preventDefault()
@@ -376,7 +405,10 @@
 			const status = window.app.insert(_query, datas)
 			if (status) {
 				form.reset()
+				$imageThumbnail.src = defaultImage()
 				showTable('metas')
+				form.hidden = true
+				$btnNew.focus()
 			}
 		}
 		function showTable(nameTable) {
@@ -385,13 +417,17 @@
 				for (key in results)
 					html += templateRowtable(results[key])
 				$tableContainer.innerHTML = html
+				$images = $tableContainer.querySelectorAll('img')
 				$items = $tableContainer.querySelectorAll('._item')
 				$checks = $tableContainer.querySelectorAll('._select_item')
-				$checks.forEach(function(item) {
-					item.addEventListener('change', selectItem, false)
+				$images.forEach(function(item) {
+					item.addEventListener('load', adjustImage, false)
 				})
 				$items.forEach(function(item) {
 					item.addEventListener('click', showItem, false)
+				})
+				$checks.forEach(function(item) {
+					item.addEventListener('change', selectItem, false)
 				})
 			})
 		}
@@ -402,26 +438,48 @@
 			if (this.checked) $item.classList.add('selected')
 			else $item.classList.remove('selected')
 		}
-		function showItem() {
-			const $item		= this
-			const dataItem	= {
-								id				: $item.dataset.id,
-								nombre			: $item.querySelector('._name').innerHTML,
-								descripcion		: $item.querySelector('._description').innerHTML || '',
-								precio			: $item.querySelector('._price').innerHTML || '',
-								fecha			: $item.querySelector('._date').innerHTML || '',
-								imagen			: $item.querySelector('._img').innerHTML || '',
-								objetivo		: $item.querySelector('._objetive').innerHTML || '',
-							}
-			for (key in dataItem)
-				$form.querySelector('#' + key).value = dataItem[key]
-			$form
-				.querySelectorAll('input:not([type="hidden"]), sellect')[0]
-				.focus()
+		function showItem(event) {
+			if (!event.target.classList.contains('_select_item')) {
+				const $item		= this
+				const dataItem	= {
+									id				: $item.dataset.id,
+									nombre			: $item.querySelector('._name').innerHTML,
+									descripcion		: $item.querySelector('._description').innerHTML || '',
+									precio			: $item.querySelector('._price').innerHTML || '',
+									fecha			: $item.querySelector('._date').innerHTML || '',
+									imagen			: $item.querySelector('._img').src || '',
+									objetivo		: $item.querySelector('._objetive').innerHTML || '',
+								}
+				for (key in dataItem) {
+					if (key === 'imagen') image_thumbnail.src = dataItem[key]
+					$form.querySelector('#' + key).value = dataItem[key]
+				}
+				$form.hidden = false
+				$form.querySelector('[type="submit"]').disabled = false
+				$form
+					.querySelectorAll('input:not([type="hidden"]), sellect')[0]
+					.focus()
+			}
+		}
+		function showMoreOptions() {
+			const $form = _getParents(this, 'form')
+			const $inputsForm = $form.querySelectorAll('input:not([type="hidden"]), select, textarea')
+			$form.classList.add('show_all_options')
+			for (let $input of $inputsForm) 
+				if (!$input.value) {
+					$input.focus()
+					break
+				}
+		}
+		function newRegister() {
+			document.querySelector('form').hidden = false
+			document.querySelector('#nombre').focus()
 		}
 		const $uploadImage		= document.querySelector('#upload_image')
 		const $form				= document.querySelector('form')
+		const $moreOption		= document.querySelector('form ._more_options')
 		const $imagen			= document.querySelector('#imagen')
+		const $btnNew			= document.querySelector('#btn_new')
 		const $tableContainer	= document.querySelector('#table_container')
 		const $imageMode		= document.querySelector('#image_mode')
 		const $imageThumbnail	= document.querySelector('#image_thumbnail')
@@ -436,8 +494,12 @@
 					for (key in results)
 					    html += templateRowtable(results[key])
 					$tableContainer.innerHTML = html
+					$images = $tableContainer.querySelectorAll('img')
 					$items = $tableContainer.querySelectorAll('._item')
 					$checks = $tableContainer.querySelectorAll('._select_item')
+					$images.forEach(function(item) {
+						item.addEventListener('load', adjustImage, false)
+					})
 					$checks.forEach(function(item) {
 						item.addEventListener('change', selectItem, false)
 					})
@@ -448,10 +510,12 @@
 			} else console.error(messages.error_init)
 		}
 		window.addEventListener('load', init, false)
+		$btnNew.addEventListener('click', newRegister, false)
+		$moreOption.addEventListener('click', showMoreOptions, false)
 		$uploadImage.addEventListener('change', loadImage, false)
 		$form.addEventListener('submit', saveForm, false)
 		$imageMode.addEventListener('change', wayToLoadTheImage, false)
-		$imageUrl.addEventListener('change', adjustImage, false)
+		$imageUrl.addEventListener('change', adjustImages, false)
 		$imageThumbnail.addEventListener('error', defaultImageByError, false)
 		$inputs.forEach(function(item) {
 			item.addEventListener('change', enableForm, false)
