@@ -78,7 +78,7 @@
 		<a href="#">Objetivos</a>
 		<a href="#">Metas</a>
 	</nav> -->
-	<button id="btn_new" type="button" data-role="goal">Nuevo</button>
+	<button id="btn_new" type="button" data-role="goal" tabindex="1">Nuevo</button>
 	<section id="table_container" class="items"></section>
 	<form hidden>
 		<input id="id" name="id" type="hidden">
@@ -134,7 +134,8 @@
 			</label>
 		</div>
 		<button class="_more_options" type="button">Más opciones</button>
-		<button type="submit" disabled>Aceptar</button>
+		<button type="submit" disabled>Guardar</button>
+		<button id="btn_delete" type="button">Eliminar</button>
 		<button type="reset">Cancelar</button>
 	</form>
 	<script>
@@ -217,9 +218,9 @@
 				}
 			}
 			getTable(nameTable, callBack) {
-				const instruction = `SELECT * FROM ${nameTable}`
+				const query = `SELECT * FROM ${nameTable}`
 				this.db.transaction(function(transaction) {
-					transaction.executeSql(instruction, [], function(transaction, results) {
+					transaction.executeSql(query, [], function(transaction, results) {
 						let datas = []
 						if (results.rows.length) {
 							for (let i = 0; i < results.rows.length; i++)
@@ -237,14 +238,23 @@
 					})
 				})
 			}
-			execute(instruction) {
+			execute(query) {
 				this.db.transaction(function(transaction) {
-					transaction.executeSql(instruction)
+					transaction.executeSql(query)
 				}, this.errorHandler, this.successHandler(this.messages.message_1))
 			}
 			insert(queryInsert, datas) {
 				this.db.transaction(function(transaction) {
 					transaction.executeSql(queryInsert, datas)
+				}, this.errorHandler, this.successHandler(this.messages.message_3))
+				return true
+			}
+			delete(id, table) {
+				const query = `DELETE FROM ${table} WHERE id IN (?)`
+				const datas = []
+				datas.push(id)
+				this.db.transaction(function(transaction) {
+					transaction.executeSql(query, datas)
 				}, this.errorHandler, this.successHandler(this.messages.message_3))
 				return true
 			}
@@ -384,6 +394,16 @@
 		function defaultImageByError() {
 			this.src = defaultImage()
 		}
+		function cancelForm(event) {
+			event.preventDefault()
+			event.stopPropagation()
+			const $form	= this
+			$form.hidden = true
+			const $inputs = $form.querySelectorAll('select, input, textarea')
+			$inputs.forEach(function(item) {
+				item.value = ''
+			})
+		}
 		function saveForm(event) {
 			event.preventDefault()
 			event.stopPropagation()
@@ -401,7 +421,6 @@
 			let queryUpdated	= `UPDATE metas SET ${tokens.map((i, item) => i + '=?')} WHERE id=${_edit}`
 			let queryInsert		= `INSERT INTO metas (${tokens.map((i, item) => i)}) VALUES (${tokens.map((i, item) => '?')})`
 			let _query			= _edit ? queryUpdated : queryInsert
-			console.log(_query)
 			const status = window.app.insert(_query, datas)
 			if (status) {
 				form.reset()
@@ -447,7 +466,7 @@
 									descripcion		: $item.querySelector('._description').innerHTML || '',
 									precio			: $item.querySelector('._price').innerHTML || '',
 									fecha			: $item.querySelector('._date').innerHTML || '',
-									imagen			: $item.querySelector('._img').src || '',
+									imagen			: $item.querySelector('._img').getAttribute('src') || '',
 									objetivo		: $item.querySelector('._objetive').innerHTML || '',
 								}
 				for (key in dataItem) {
@@ -455,6 +474,7 @@
 					$form.querySelector('#' + key).value = dataItem[key]
 				}
 				$form.hidden = false
+				$form.classList.add('show_all_options')
 				$form.querySelector('[type="submit"]').disabled = false
 				$form
 					.querySelectorAll('input:not([type="hidden"]), sellect')[0]
@@ -472,12 +492,23 @@
 				}
 		}
 		function newRegister() {
-			document.querySelector('form').hidden = false
+			$form.reset()
+			$form.hidden = false
+			$form.classList.remove('show_all_options')
 			document.querySelector('#nombre').focus()
+		}
+		function deleteRegister() {
+			const $form = _getParents(this, 'form')
+			const _id = $form.querySelector('#id').value
+			const _table = 'metas'
+			window.app.delete(_id, _table)
+			$form.hidden = true
+			showTable('metas')
 		}
 		const $uploadImage		= document.querySelector('#upload_image')
 		const $form				= document.querySelector('form')
 		const $moreOption		= document.querySelector('form ._more_options')
+		const $btnDelete		= document.querySelector('#btn_delete')
 		const $imagen			= document.querySelector('#imagen')
 		const $btnNew			= document.querySelector('#btn_new')
 		const $tableContainer	= document.querySelector('#table_container')
@@ -510,10 +541,12 @@
 			} else console.error(messages.error_init)
 		}
 		window.addEventListener('load', init, false)
+		$btnDelete.addEventListener('click', deleteRegister, false)
 		$btnNew.addEventListener('click', newRegister, false)
 		$moreOption.addEventListener('click', showMoreOptions, false)
 		$uploadImage.addEventListener('change', loadImage, false)
 		$form.addEventListener('submit', saveForm, false)
+		$form.addEventListener('reset', cancelForm, false)
 		$imageMode.addEventListener('change', wayToLoadTheImage, false)
 		$imageUrl.addEventListener('change', adjustImages, false)
 		$imageThumbnail.addEventListener('error', defaultImageByError, false)
