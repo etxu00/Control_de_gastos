@@ -48,9 +48,6 @@
 		img {
 			max-width: 100%;
 		}
-		.selected {
-			outline: 1px solid;
-		}
 		img._img.x {
 			max-width: 10rem;
 		}
@@ -71,6 +68,26 @@
 		form:not(.show_all_options) .input_container:not(.minimum_required) {
 		    display: none;
 		}
+		.row._item {
+			box-shadow: rgb(0 0 0 / 30%) 0 1px 2px 0, rgb(0 0 0 / 15%) 0 1px 3px 1px;
+			background: white;
+			padding: 1rem;
+			border-radius: .25rem;
+			position: relative;
+			margin: 0 0 1rem 0;
+		}
+		.select_item {
+			position: absolute;
+			top: 1rem;
+			left: 1rem;
+		}
+		.row._item.selected {
+			background: var(--blue);
+			color: white;
+		}
+		.column._price:before {
+			content: '$ ';
+		}
 	</style>
 </head>
 <body>
@@ -79,7 +96,44 @@
 		<a href="#">Metas</a>
 	</nav> -->
 	<button id="btn_new" type="button" data-role="goal" tabindex="1">Nuevo</button>
-	<section id="table_container" class="items"></section>
+	<section>
+		<article>
+			<style>
+				canvas {
+				}
+			</style>
+			<div class="avance_container">
+				<canvas id="g"></canvas>
+				<div class="advance"></div>
+				<img src="data:image/svg+xml;base64,PHN2ZyBpZD0iQ2FwYV8xIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA1MTIgNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGc+PGc+PHBhdGggZD0ibTE0My4xNDQgNDE1LjkyOS01Ni41MzQtNTYuNTM5Yy01Ljg2LTUuODUtMTUuMzYtNS44NS0yMS4yMiAwbC02MSA2MWMtMi44MSAyLjgyLTQuMzkgNi42My00LjM5IDEwLjYxdjY2YzAgOC4yOCA2LjcyIDE1IDE1IDE1aDQ1LjgyNHoiIGZpbGw9IiM1YmM5OTgiLz48cGF0aCBkPSJtNTA3LjYxIDQyMC4zOS02MS02MWMtNS44Ni01Ljg1LTE1LjM2LTUuODUtMjEuMjIgMGwtNTYuNjI2IDU2LjYzIDgyLjEwNSA5NS45OGg0Ni4xMzFjOC4yOCAwIDE1LTYuNzIgMTUtMTV2LTY2YzAtMy45OC0xLjU4LTcuNzktNC4zOS0xMC42MXoiIGZpbGw9IiMyODhjNzkiLz48L2c+PHBhdGggZD0ibTI3MSAyODIuNDYxdi0xNDYuNDYxbC0xNC45MTEtNS0xNS4wODkgNXYxNDYuNDYxeiIgZmlsbD0iIzQ3NGU4YyIvPjxwYXRoIGQ9Im0yNzEgMTM2djE0Ni40NmgtMTV2LTE1MS40M2wuMDktLjAzeiIgZmlsbD0iIzE2MWU0YyIvPjxwYXRoIGQ9Im0zODguOTkzIDExMy41MDQtMjUuNzU2LTQ0LjY0NCAyNS44NzUtNDYuNTc2YzUuNTQ2LTkuOTgyLTEuNjg2LTIyLjI4NC0xMy4xMTItMjIuMjg0aC0xMjBjLTguMjg0IDAtMTUgNi43MTYtMTUgMTV2MTIxaDEzNWMxMS41MDEgMCAxOC43NzItMTIuNDc5IDEyLjk5My0yMi40OTZ6IiBmaWxsPSIjZjc3NDY4Ii8+PHBhdGggZD0ibTM3NiAxMzZoLTEyMHYtMTM2aDEyMGMxMS40MyAwIDE4LjY2IDEyLjMgMTMuMTEgMjIuMjhsLTI1Ljg3IDQ2LjU4IDI1Ljc1IDQ0LjY0YzUuNzggMTAuMDItMS40OSAyMi41LTEyLjk5IDIyLjV6IiBmaWxsPSIjZTYzZTM5Ii8+PHBhdGggZD0ibTQ2OC41NyA1MTJjLTMuOTIyLTQuNTg1LTYxLjE1NC03MS40ODgtMTEzLjEzLTEzMi4yNDdsLTE5OC45MzMtLjEwMy0xMTMuNDA3IDEzMi4zNXoiIGZpbGw9IiM5MGViOWYiLz48cGF0aCBkPSJtNDY4LjU3IDUxMmgtMjEyLjU3di0xMzIuM2w5OS40NC4wNWM1MS45OCA2MC43NiAxMDkuMjEgMTI3LjY3IDExMy4xMyAxMzIuMjV6IiBmaWxsPSIjNWJjOTk4Ii8+PHBhdGggZD0ibTI1NS44MzUgMzg1IDQ0LjM1OCA1MCA1NS4yNDctNTUuMjQ3Yy00MC45OS00Ny45MTctNzguNzEzLTkyLjAxNC04NC40NC05OC43MDloLTMwYy0uMDQ4LjA1Ni00MC4zMDUgNDcuMDM3LTg0LjQ5MyA5OC42MDZsNTQuNTE4IDU0LjUxOHoiIGZpbGw9IiNmMGY0ZmYiLz48cGF0aCBkPSJtMzU1LjQ0IDM3OS43NS01NS4yNSA1NS4yNS00NC4xOS00OS44MXYtMTA0LjE1aDE1YzUuNzMgNi43IDQzLjQ1IDUwLjggODQuNDQgOTguNzF6IiBmaWxsPSIjZGZlM2Y0Ii8+PC9nPjwvc3ZnPg==" />
+			</div>
+			<script>
+				const canvas  = document.querySelector('#g')
+				canvas.width  = 100 // document.body.clientWidth
+				canvas.height = 100 // document.body.clientHeight
+				context       = canvas.getContext('2d')
+				avance        = 75.5
+				grados        = (avance * 360) / 100
+				rad           = (Math.PI / 180) * grados
+				x             = 4.75
+				line          = context.createLinearGradient(50, 50, 150, 150)
+				line.addColorStop(0, "#a126ff")
+				line.addColorStop(1, "#007bff")
+				context.beginPath()
+				context.strokeStyle = line
+				context.lineCap = "round"
+				context.lineWidth = 10
+				context.arc(50, 50, 45, x, (rad + x), false)
+				context.rotate(Math.PI / 5)
+				context.stroke()
+			</script>
+			<h1>Mis metas 22/100</h1>
+			<div class="money">$ 1,500.00</div>
+			<div class="money">Ahorrado: $ 500.00</div>
+			<div class="money">Faltante: $ 1,000.00</div>
+		</article>
+		<section id="table_container" class="items"></section>
+	</section>
 	<form hidden>
 		<input id="id" name="id" type="hidden">
 		<div class="input_container minimum_required">
@@ -138,6 +192,15 @@
 		<button id="btn_delete" type="button">Eliminar</button>
 		<button type="reset">Cancelar</button>
 	</form>
+	<table>
+		<tbody>
+			<tr>
+				<td>1</td>
+				<td>1</td>
+				<td>1</td>
+			</tr>
+		</tbody>
+	</table>
 	<script>
 		/*
 			MAXIMUN GERRERO PECHOS_DE_ADAMATIUM LOMO_PLATEADO EMPLAZADOR AZTECA DE-BRONCE/PLATA/ORO/DIAMANTE SUPER_SAYAN GOOD/ULTRA-GOOD // Gaminficación de nivel de usuario para comunidad HUNTER
@@ -289,6 +352,8 @@
 				} else console.error(this.messages.message_2)
 			}
 		}
+		const formatMoney = string => string.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
+		const dateFormat = stringDate => stringDate.split('-').reverse()[0] + '/' + stringDate.split('-').reverse()[1] + '/' + stringDate.split('-').reverse()[2]
 		const defaultImage = () => `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMzA4LjggMzA4LjgiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMwOC44IDMwOC44OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojNEE1NjZFOyIgZD0iTTM1LjYsMTguOGgxODBjMTkuNiwwLDM1LjYsMTYsMzUuNiwzNS42djE4NS4yYzAsMTkuNi0xNiwzNS42LTM1LjYsMzUuNmgtMTgwDQoJCUMxNiwyNzUuMiwwLDI1OS4yLDAsMjM5LjZWNTRDMCwzNC44LDE2LDE4LjgsMzUuNiwxOC44eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMTE2LjQsMTg2LjRsLTUyLjgtNTIuOEwwLDE5Ny4ydjEzLjJ2MjguOGMwLDE5LjYsMTYsMzUuNiwzNS42LDM1LjZoMTgwYzE5LjYsMCwzNS42LTE2LDM1LjYtMzUuNg0KCQl2LTI4Ljh2LTM5LjZsLTU5LjYtNjBMMTE2LjQsMTg2LjR6Ii8+DQoJPGNpcmNsZSBzdHlsZT0iZmlsbDojRkZDQzAzOyIgY3g9IjExNC44IiBjeT0iMTAzLjYiIHI9IjIyLjQiLz4NCgk8Y2lyY2xlIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBjeD0iMjUxLjIiIGN5PSIyMzIuNCIgcj0iNTcuNiIvPg0KPC9nPg0KPGc+DQoJPHBhdGggc3R5bGU9ImZpbGw6IzAwQjU5NDsiIGQ9Ik0yMjQsMjQwLjhjLTQuNCwwLTguNC0zLjYtOC40LTguNHMzLjYtOC40LDguNC04LjRoNTQuNGM0LjgsMCw4LjQsMy42LDguNCw4LjRzLTMuNiw4LjQtOC40LDguNA0KCQlIMjI0eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiMwMEI1OTQ7IiBkPSJNMjU5LjYsMjU5LjZjMCw0LjgtMy42LDguNC04LjQsOC40cy04LjQtMy42LTguNC04LjR2LTU0YzAtNC40LDMuNi04LjQsOC40LTguNA0KCQljNC40LDAsOC40LDMuNiw4LjQsOC40VjI1OS42eiIvPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo=`
 		const imageThumbnail = () => `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNDI2LjY2NyA0MjYuNjY3IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0MjYuNjY3IDQyNi42Njc7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8Y2lyY2xlIGN4PSIyMTMuMzMzIiBjeT0iMjM0LjY2NyIgcj0iNjguMjY3Ii8+DQoJPC9nPg0KPC9nPg0KPGc+DQoJPGc+DQoJCTxwYXRoIGQ9Ik0zODQsNjRoLTY3LjYyN2wtMzkuMDQtNDIuNjY3aC0xMjhMMTEwLjI5Myw2NEg0Mi42NjdDMTkuMDkzLDY0LDAsODMuMDkzLDAsMTA2LjY2N3YyNTYNCgkJCWMwLDIzLjU3MywxOS4wOTMsNDIuNjY3LDQyLjY2Nyw0Mi42NjdIMzg0YzIzLjU3MywwLDQyLjY2Ny0xOS4wOTMsNDIuNjY3LTQyLjY2N3YtMjU2QzQyNi42NjcsODMuMDkzLDQwNy41NzMsNjQsMzg0LDY0eg0KCQkJIE0yMTMuMzMzLDM0MS4zMzNjLTU4Ljg4LDAtMTA2LjY2Ny00Ny43ODctMTA2LjY2Ny0xMDYuNjY3UzE1NC40NTMsMTI4LDIxMy4zMzMsMTI4UzMyMCwxNzUuNzg3LDMyMCwyMzQuNjY3DQoJCQlTMjcyLjIxMywzNDEuMzMzLDIxMy4zMzMsMzQxLjMzM3oiLz4NCgk8L2c+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8L3N2Zz4NCg==`
 		const templateRowtable = rowObj =>
@@ -301,8 +366,8 @@
 				</div>
 				<div class="column _name">${rowObj.name || ''}</div>
 				<div class="column _description">${rowObj.description || ''}</div>
-				<div class="column _price">${rowObj.price || ''}</div>
-				<div class="column _date">${rowObj.date || ''}</div>
+				<div class="column _price">${formatMoney(rowObj.price.toFixed(2).toString()) || ''}</div>
+				<div class="column _date">${dateFormat(rowObj.date) || ''}</div>
 				<div class="column _objetive">${rowObj.objetive || ''}</div>
 				<div class="controls_container">
 					<div class="move"></div>
