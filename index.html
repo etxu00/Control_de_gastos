@@ -96,20 +96,44 @@
 		<a href="#">Metas</a>
 	</nav> -->
 	<button id="btn_new" type="button" data-role="goal" tabindex="1">Nuevo</button>
+	<svg class="CircularProgressbar " viewBox="0 0 100 100">
+		<path
+			class="CircularProgressbar-path"
+			style="stroke:#1AC2B0;stroke-dasharray: 56 301.59289474462014px;stroke-dashoffset: 0.576966px;"
+			d="M 50,50 m 0, -48 a 48, 48 0 1 1 0, 96 a 48, 48 0 1 1 0, -96"
+			stroke-width="4"
+			fill-opacity="0"></path>
+	</svg>
 	<section>
 		<article>
 			<style>
+				.avance_container canvas {
+					opacity: 0;
+					transition: 1s cubic-bezier(0, 0, 0.48, 1.86) .75s;
+					transform: translate(-50%, -50%) rotate(-1080deg);
+				}
 				.avance_container {
 				    position: relative;
 				    min-height: calc(100px + 2rem);
-				    border: 1px solid;
+					margin: 0 0 0 -15rem;
 				}
-				.avance_container img {
-				    position: absolute;
-				    top: 50%;
-				    left: 50%;
-				    transform: translate(-50%, -50%);
-				    width: 53px;
+				.avance_container.animated canvas {
+					opacity: 1;
+					transform: translate(-50%, -50%) rotate(0deg);
+				}
+				.avance_container.animated > img {
+					opacity: 1;
+					transform: translate(-50%, -50%);
+				}
+				.avance_container > img {
+					left: 50%;
+					opacity: 0;
+					position: absolute;
+					top: 50%;
+					transform: translate(-50%, 80%);
+					transition: .75s cubic-bezier(0, 0, 0.48, 1.86);
+					width: 53px;
+					z-index: 3;
 				}
 				.avance_container > * {
 				    position: absolute;
@@ -118,46 +142,96 @@
 				    transform: translate(-50%, -50%);
 				}
 				.advance {
-				    background: #E1BEE7;
-				    width: 100px;
-				    height: 100px;
-				    z-index: -1;
-				    border-radius: 50%;
+					background: #E1BEE7;
+					border-radius: 50%;
+					height: 100px;
+					transform: translate(-50%, -50%) scale(0);
+					width: 100px;
+					z-index: -1;
+					transition: .5s cubic-bezier(0, 0, 0.48, 1.86);
 				}
-				.advance:before {content: '';width: 80px;height: 80px;z-index: -1;border-radius: 50%;background: white;z-index: 2;position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);}
-				.avance_container.animated .advance {animation: show .5s cubic-bezier(0, 0, 0.48, 1.86);}
-
-				@keyframes show {
-				    0% {
-						transform: translate(-50%, -50%) scale(0);
-				    }
-				    100% {
-				        transform: translate(-50%, -50%) scale(1);
-				    }
+				.advance_2 {
+					background: white;
+					border-radius: 50%;
+					box-shadow: 0 0 0 0 rgb(0 0 0 / 0.2);
+					content: '';
+					height: 80px;
+					left: 50%;
+					position: absolute;
+					top: 50%;
+					transform: translate(-50%, -50%) scale(0);
+					transition: .5s cubic-bezier(0, 0, 0.48, 1.86) .25s, box-shadow .5s cubic-bezier(0, 0, 0.48, 1.86) 1.5s;
+					width: 80px;
+					z-index: 2;
 				}
-
-				.avance_container.animated .advance:before {
-				    animation: show .5s cubic-bezier(0, 0, 0.48, 1.86) .5s;
+				.animated .advance_2,
+				.animated .advance {
+					transform: translate(-50%, -50%) scale(1);
 				}
-
+				.avance_container.animated .advance_2 {
+					transform: translate(-50%, -50%) scale(1);
+					box-shadow: 0 8px 6px 3px rgb(0 0 0 / 0.2);
+				}
+				.details {
+					margin: 0 0 0 7rem;
+					font-size: 18px;
+				}
+				.details > div {
+					margin: 6px 0;
+				}
+				.details > div:nth-child(1) {
+					font-weight: 600;
+					font-family: 'Arial';
+				}
+				.details > div:nth-child(2):before,
+				.details > div:nth-child(3):before {
+					content: '$ ';
+					opacity: 0.85;
+					font-size: 16px;
+				}
+				.details > div > span {
+					background: var(--font);
+					display: inline;
+					padding: 4px;
+					font-size: 12px;
+					border-radius: 3px;
+					line-height: 1;
+					color: white;
+				}
+				#avance_container:before {
+				    content: attr(data-number) '%';
+				    position: absolute;
+				    top: 60%;
+				    left: 50%;
+				    background: linear-gradient(180deg, #e1bee7, #722bd5);
+				    transform: translate(-50%, 48%);
+				    z-index: 4;
+				    padding: .15rem .5rem;
+				    border-radius: 5px;
+				    color: white;
+				    border: 0.5px solid #e1bee7;
+				}
 			</style>
-
 			<div class="flex">
-				<div class="avance_container animated">
+				<div id="avance_container" class="avance_container" data-number="78.9">
 					<canvas id="g"></canvas>
 					<div class="advance"></div>
+					<div class="advance_2"></div>
 					<img src="data:image/svg+xml;base64,PHN2ZyBpZD0iQ2FwYV8xIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA1MTIgNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGc+PGc+PHBhdGggZD0ibTE0My4xNDQgNDE1LjkyOS01Ni41MzQtNTYuNTM5Yy01Ljg2LTUuODUtMTUuMzYtNS44NS0yMS4yMiAwbC02MSA2MWMtMi44MSAyLjgyLTQuMzkgNi42My00LjM5IDEwLjYxdjY2YzAgOC4yOCA2LjcyIDE1IDE1IDE1aDQ1LjgyNHoiIGZpbGw9IiM1YmM5OTgiLz48cGF0aCBkPSJtNTA3LjYxIDQyMC4zOS02MS02MWMtNS44Ni01Ljg1LTE1LjM2LTUuODUtMjEuMjIgMGwtNTYuNjI2IDU2LjYzIDgyLjEwNSA5NS45OGg0Ni4xMzFjOC4yOCAwIDE1LTYuNzIgMTUtMTV2LTY2YzAtMy45OC0xLjU4LTcuNzktNC4zOS0xMC42MXoiIGZpbGw9IiMyODhjNzkiLz48L2c+PHBhdGggZD0ibTI3MSAyODIuNDYxdi0xNDYuNDYxbC0xNC45MTEtNS0xNS4wODkgNXYxNDYuNDYxeiIgZmlsbD0iIzQ3NGU4YyIvPjxwYXRoIGQ9Im0yNzEgMTM2djE0Ni40NmgtMTV2LTE1MS40M2wuMDktLjAzeiIgZmlsbD0iIzE2MWU0YyIvPjxwYXRoIGQ9Im0zODguOTkzIDExMy41MDQtMjUuNzU2LTQ0LjY0NCAyNS44NzUtNDYuNTc2YzUuNTQ2LTkuOTgyLTEuNjg2LTIyLjI4NC0xMy4xMTItMjIuMjg0aC0xMjBjLTguMjg0IDAtMTUgNi43MTYtMTUgMTV2MTIxaDEzNWMxMS41MDEgMCAxOC43NzItMTIuNDc5IDEyLjk5My0yMi40OTZ6IiBmaWxsPSIjZjc3NDY4Ii8+PHBhdGggZD0ibTM3NiAxMzZoLTEyMHYtMTM2aDEyMGMxMS40MyAwIDE4LjY2IDEyLjMgMTMuMTEgMjIuMjhsLTI1Ljg3IDQ2LjU4IDI1Ljc1IDQ0LjY0YzUuNzggMTAuMDItMS40OSAyMi41LTEyLjk5IDIyLjV6IiBmaWxsPSIjZTYzZTM5Ii8+PHBhdGggZD0ibTQ2OC41NyA1MTJjLTMuOTIyLTQuNTg1LTYxLjE1NC03MS40ODgtMTEzLjEzLTEzMi4yNDdsLTE5OC45MzMtLjEwMy0xMTMuNDA3IDEzMi4zNXoiIGZpbGw9IiM5MGViOWYiLz48cGF0aCBkPSJtNDY4LjU3IDUxMmgtMjEyLjU3di0xMzIuM2w5OS40NC4wNWM1MS45OCA2MC43NiAxMDkuMjEgMTI3LjY3IDExMy4xMyAxMzIuMjV6IiBmaWxsPSIjNWJjOTk4Ii8+PHBhdGggZD0ibTI1NS44MzUgMzg1IDQ0LjM1OCA1MCA1NS4yNDctNTUuMjQ3Yy00MC45OS00Ny45MTctNzguNzEzLTkyLjAxNC04NC40NC05OC43MDloLTMwYy0uMDQ4LjA1Ni00MC4zMDUgNDcuMDM3LTg0LjQ5MyA5OC42MDZsNTQuNTE4IDU0LjUxOHoiIGZpbGw9IiNmMGY0ZmYiLz48cGF0aCBkPSJtMzU1LjQ0IDM3OS43NS01NS4yNSA1NS4yNS00NC4xOS00OS44MXYtMTA0LjE1aDE1YzUuNzMgNi43IDQzLjQ1IDUwLjggODQuNDQgOTguNzF6IiBmaWxsPSIjZGZlM2Y0Ii8+PC9nPjwvc3ZnPg==" />
+					<!-- <img src="https://suplementaciondeportivaonline.com/wp-content/uploads/2020/08/wellguides_running-jumbo-v2.gif" /> -->
+					<div class="details">
+						<div>Mis metas <span>22/71</span></div>
+						<div>2,999.99</div>
+						<div>1,500.99</div>
+					</div>
 				</div>
-				<p>Mis metas</p>
-				<p>$ 1,999.99</p>
-				<p>10 / 100</p>
 			</div>
 			<script>
 				const canvas  = document.querySelector('#g')
 				canvas.width  = 100 // document.body.clientWidth
 				canvas.height = 100 // document.body.clientHeight
 				context       = canvas.getContext('2d')
-				avance        = 48.88
+				avance        = 78.9
 				grados        = (avance * 360) / 100
 				rad           = (Math.PI / 180) * grados
 				x             = 4.75
